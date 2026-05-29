@@ -1,0 +1,95 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Sn brand tokens — kept identical to the SnDevelopment web. */
+  --color-bg-primary: #0b0f19;
+  --color-bg-secondary: #0f172a;
+  --color-card: #111827;
+  --color-border: #1f2937;
+
+  --color-text-primary: #e5e7eb;
+  --color-text-secondary: #9ca3af;
+
+  --color-accent-violet: #6366f1;
+  --color-accent-purple: #8b5cf6;
+  --color-accent-blue: #60a5fa;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --radius-btn: 8px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden; /* app shell owns its own scroll regions */
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-shimmer {
+  background-image: linear-gradient(
+    110deg,
+    var(--color-card) 8%,
+    rgba(99, 102, 241, 0.12) 18%,
+    rgba(139, 92, 246, 0.1) 26%,
+    var(--color-card) 40%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  will-change: background-position;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .animate-shimmer {
+    background-image: none;
+    background-color: var(--color-card);
+    animation: skeleton-pulse 2s ease-in-out infinite !important;
+  }
+}
