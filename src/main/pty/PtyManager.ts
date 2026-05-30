@@ -26,6 +26,12 @@ interface Entry {
   idleTimer: ReturnType<typeof setTimeout> | null
   /** False while the owning workspace is hidden (output is throttled). */
   active: boolean
+  /** Timestamp of the last output chunk (burst detection). */
+  lastDataMs: number
+  /** When the current output burst began. */
+  burstStartMs: number
+  /** Ignore output for state purposes until this time (post-resize redraw). */
+  suppressUntil: number
 }
 
 /** Output is coalesced and flushed at ~120Hz for the visible workspace. */
@@ -36,8 +42,14 @@ const HIDDEN_FLUSH_MS = 250
 const MAX_CHUNK = 256 * 1024
 /** Replay ring-buffer size per pty. */
 const HISTORY_CAP = 256 * 1024
-/** No output for this long ⇒ a "working" pane is considered idle (task done). */
-const IDLE_AFTER_MS = 1000
+/** Quiet for this long ⇒ classify the pane (idle, or waiting if it's a prompt). */
+const IDLE_AFTER_MS = 800
+/** Gap (ms) that separates two output bursts. */
+const BURST_GAP_MS = 400
+/** Continuous output beyond this ⇒ the console is genuinely "working". */
+const WORK_MIN_MS = 400
+/** Ignore output for this long after a resize — it's a prompt redraw, not work. */
+const RESIZE_SUPPRESS_MS = 700
 /** Heuristic: the tail looks like a console waiting for the user to answer. */
 const WAITING_RX =
   /(\(y\/n\)|\[y\/n\]|\(yes\/no\)|do you want to proceed|press enter to continue|continue\?|overwrite\?|❯\s*1\.|\b1\.\s*yes\b|\(use arrow keys\))/i
@@ -81,12 +93,17 @@ export class PtyManager {
       timer: null,
       history: [],
       historyBytes: 0,
-      state: 'working',
+      state: 'idle',
       idleTimer: null,
       active: true,
+      lastDataMs: 0,
+      burstStartMs: 0,
+      suppressUntil: 0,
     }
     this.entries.set(ptyId, entry)
     this.byPane.set(req.paneId, ptyId)
+    // Register the pane with the renderer right away (idle dot + zeroed timer).
+    this.send(CH.PTY_STATE, { ptyId, paneId: req.paneId, state: 'idle' } satisfies PtyStateEvt)
 
     if (req.initialCommand && req.initialCommand.trim()) {
       // Terminate with a bare CR — exactly what pressing Enter sends in a
@@ -104,7 +121,7 @@ export class PtyManager {
     proc.onData((data) => {
       entry.buf.push(data)
       this.pushHistory(entry, data)
-      this.onActivity(ptyId, entry)
+      this.trackActivity(ptyId, entry)
       if (entry.timer === null) {
         entry.timer = setTimeout(() => this.flush(ptyId), entry.active ? FLUSH_MS : HIDDEN_FLUSH_MS)
       }
@@ -138,6 +155,8 @@ export class PtyManager {
   resize(ptyId: string, cols: number, rows: number): void {
     const entry = this.entries.get(ptyId)
     if (entry && cols > 0 && rows > 0) {
+      // A resize makes the shell repaint its prompt; don't count that as work.
+      entry.suppressUntil = Date.now() + RESIZE_SUPPRESS_MS
       try {
         entry.pty.resize(cols, rows)
       } catch {
@@ -198,17 +217,32 @@ export class PtyManager {
     }
   }
 
-  /** Update activity state from the recent tail + (re)arm the idle timer. */
-  private onActivity(ptyId: string, entry: Entry): void {
-    if (WAITING_RX.test(this.tail(entry))) this.setState(ptyId, 'waiting')
-    else this.setState(ptyId, 'working')
-
+  /**
+   * Mark the pane "working" only on *sustained* output (an agent streaming, a
+   * build running) — never on a one-shot prompt redraw from a click/resize/
+   * focus. When output settles, classifyQuiet decides idle vs waiting.
+   */
+  private trackActivity(ptyId: string, entry: Entry): void {
+    const now = Date.now()
+    if (now >= entry.suppressUntil) {
+      if (now - entry.lastDataMs >= BURST_GAP_MS) {
+        // First chunk of a fresh burst — not enough to call it work yet.
+        entry.burstStartMs = now
+      } else if (now - entry.burstStartMs >= WORK_MIN_MS) {
+        this.setState(ptyId, 'working')
+      }
+    }
+    entry.lastDataMs = now
     if (entry.idleTimer) clearTimeout(entry.idleTimer)
-    entry.idleTimer = setTimeout(() => {
-      // Gone quiet: a working pane is now idle (task finished). A waiting pane
-      // stays waiting — it's blocked on input, no further output expected.
-      if (entry.state === 'working') this.setState(ptyId, 'idle')
-    }, IDLE_AFTER_MS)
+    entry.idleTimer = setTimeout(() => this.classifyQuiet(ptyId), IDLE_AFTER_MS)
+  }
+
+  /** When output settles, the tail decides: waiting on a prompt, or just idle. */
+  private classifyQuiet(ptyId: string): void {
+    const entry = this.entries.get(ptyId)
+    if (!entry) return
+    if (WAITING_RX.test(this.tail(entry))) this.setState(ptyId, 'waiting')
+    else this.setState(ptyId, 'idle')
   }
 
   /** Roughly the last 2KB of recent output. */

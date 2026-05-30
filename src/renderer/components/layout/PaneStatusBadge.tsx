@@ -19,28 +19,36 @@ function fmt(ms: number): string {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-/** State dot + session runtime for a console (U6). No token/cost data. */
+/** State dot + accumulated working time for a console (U6). No token/cost data. */
 export function PaneStatusBadge({ paneId }: { paneId: string }) {
-  const state = useActivityStore((s) => s.states[paneId])
-  const spawnedAt = useActivityStore((s) => s.spawnedAt[paneId])
+  const activity = useActivityStore((s) => s.activity[paneId])
   const [, tick] = useState(0)
 
+  const working = activity?.state === 'working'
+  // Only tick the clock while actually working — idle/waiting freezes it.
   useEffect(() => {
-    if (!spawnedAt || state === 'exited') return
+    if (!working) return
     const id = setInterval(() => tick((n) => n + 1), 1000)
     return () => clearInterval(id)
-  }, [spawnedAt, state])
+  }, [working])
 
-  if (!state) return null
-  const runtime = spawnedAt ? fmt(Date.now() - spawnedAt) : null
+  if (!activity) return null
+  const elapsed =
+    activity.workedMs + (activity.workingSince != null ? Date.now() - activity.workingSince : 0)
 
   return (
     <span className="flex shrink-0 items-center gap-1">
       <span
-        className={cn('h-1.5 w-1.5 rounded-full', DOT[state], state === 'working' && 'animate-pulse')}
+        className={cn(
+          'h-1.5 w-1.5 rounded-full',
+          DOT[activity.state],
+          working && 'animate-pulse',
+        )}
       />
-      {runtime && state !== 'exited' && (
-        <span className="font-mono text-[10px] tabular-nums text-text-secondary/70">{runtime}</span>
+      {elapsed >= 1000 && activity.state !== 'exited' && (
+        <span className="font-mono text-[10px] tabular-nums text-text-secondary/70">
+          {fmt(elapsed)}
+        </span>
       )}
     </span>
   )

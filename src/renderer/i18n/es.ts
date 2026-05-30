@@ -110,6 +110,7 @@ export const es: Record<keyof typeof en, string> = {
   'settings.notifyOnWaiting': 'Avisar cuando una consola espera respuesta',
   'settings.notifyOnWaitingHint': 'Cuando una consola parece estar esperando tu respuesta.',
   'settings.notifySound': 'Reproducir un sonido con las notificaciones',
+  'settings.testSound': 'Probar sonido',
   'notify.doneBody': 'Terminó ({secs}s)',
   'notify.waitingBody': 'Esperando tu respuesta',
   'settings.newPreset': 'Nuevo modelo',

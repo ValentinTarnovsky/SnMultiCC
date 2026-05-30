@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import type { PaneState } from '@shared/types'
 import { useAppStore } from './store'
 import { useActivityStore } from './activityStore'
+import { playBeep } from './sound'
 import { useT, type TFn } from '@/i18n'
 
 /** A "working" spell shorter than this isn't worth a "done" notification. */
@@ -19,24 +20,6 @@ function findPane(paneId: string): PaneRef | null {
     if (p) return { title: p.title, type: p.type, workspaceId: w.id }
   }
   return null
-}
-
-function playBeep(): void {
-  try {
-    const ctx = new AudioContext()
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.frequency.value = 660
-    gain.gain.setValueAtTime(0.06, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25)
-    osc.start()
-    osc.stop(ctx.currentTime + 0.25)
-    osc.onended = () => void ctx.close()
-  } catch {
-    /* audio not available */
-  }
 }
 
 function notify(title: string, body: string, workspaceId: string, sound: boolean): void {

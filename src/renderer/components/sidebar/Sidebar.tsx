@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import type { PaneState } from '@shared/types'
 import { useAppStore } from '@/lib/store'
-import { useActivityStore } from '@/lib/activityStore'
+import { useActivityStore, type PaneActivity } from '@/lib/activityStore'
 import { useT } from '@/i18n'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { ContextMenu, type ContextMenuItem } from '@/components/ui/ContextMenu'
@@ -34,10 +34,10 @@ const DOT: Record<PaneState, string> = {
 const PRIORITY: Record<PaneState, number> = { waiting: 3, working: 2, exited: 1, idle: 0 }
 
 /** Worst-priority non-idle state across a workspace's panes (null if all idle). */
-function aggregate(paneIds: string[], states: Record<string, PaneState>): PaneState | null {
+function aggregate(paneIds: string[], activity: Record<string, PaneActivity>): PaneState | null {
   let best: PaneState | null = null
   for (const id of paneIds) {
-    const st = states[id]
+    const st = activity[id]?.state
     if (!st || st === 'idle') continue
     if (!best || PRIORITY[st] > PRIORITY[best]) best = st
   }
@@ -59,7 +59,7 @@ export function Sidebar() {
     setWizardOpen,
   } = useAppStore()
 
-  const states = useActivityStore((s) => s.states)
+  const activity = useActivityStore((s) => s.activity)
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
@@ -160,7 +160,7 @@ export function Sidebar() {
           const renaming = renamingId === w.id
           const dotState = aggregate(
             w.panes.map((p) => p.id),
-            states,
+            activity,
           )
           return (
             <div

@@ -1,4 +1,5 @@
 import { useAppStore } from '@/lib/store'
+import { playBeep } from '@/lib/sound'
 import { useT } from '@/i18n'
 import { ToggleRow } from '../ui'
 
@@ -34,6 +35,13 @@ export function NotificationsSection() {
           onChange={(v) => updateSettings({ notifySound: v })}
           title={t('settings.notifySound')}
         />
+        <button
+          type="button"
+          onClick={() => playBeep()}
+          className="rounded-btn border border-border bg-bg-secondary px-3 py-1.5 text-xs text-text-primary transition-colors hover:border-accent-violet/40"
+        >
+          {t('settings.testSound')}
+        </button>
       </div>
     </div>
   )
