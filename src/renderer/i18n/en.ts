@@ -30,6 +30,11 @@ export const en = {
   'pane.restore': 'Restore',
   'pane.close': 'Close',
 
+  // In-pane search
+  'search.placeholder': 'Find…',
+  'search.next': 'Next match',
+  'search.prev': 'Previous match',
+
   // Empty state
   'empty.title': 'Multi Command Consoles',
   'empty.subtitle': 'Create a workspace in any folder and open several consoles at once.',
@@ -79,6 +84,9 @@ export const en = {
   'settings.shellMac': 'Shell (macOS)',
   'settings.shellLinux': 'Shell (Linux)',
   'settings.scrollback': 'Scrollback (lines)',
+  'settings.infiniteScrollback': 'Infinite scrollback',
+  'settings.infiniteScrollbackHint':
+    'Keep all output like a normal terminal. Turn off to cap the number of lines.',
   'settings.language': 'Language',
   'settings.languageHint': 'Interface language.',
   'settings.restoreLast': 'Restore the last workspace on open',

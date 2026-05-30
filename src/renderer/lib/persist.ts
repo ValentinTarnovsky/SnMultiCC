@@ -1,7 +1,5 @@
-import type { ConfigFile } from '@shared/types'
+import { CONFIG_VERSION, type ConfigFile } from '@shared/types'
 import { type AppState, useAppStore } from './store'
-
-const CONFIG_VERSION = 2
 
 function toConfig(state: AppState): ConfigFile {
   return {

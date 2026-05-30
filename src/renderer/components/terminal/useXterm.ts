@@ -4,10 +4,24 @@ import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { CanvasAddon } from '@xterm/addon-canvas'
+import { SearchAddon } from '@xterm/addon-search'
 import '@xterm/xterm/css/xterm.css'
 import { useAppStore } from '@/lib/store'
 import { buildXtermTheme } from '@/themes'
 import { registerPty, unregisterPty } from '@/lib/ptyRegistry'
+
+/** Line cap used to emulate "infinite" scrollback (like a normal terminal). */
+const INFINITE_SCROLLBACK = 100000
+
+/** Highlight palette for in-pane search matches. */
+const SEARCH_OPTS = {
+  decorations: {
+    matchBackground: '#8b5cf688',
+    activeMatchBackground: '#6366f1',
+    matchOverviewRuler: '#8b5cf6',
+    activeMatchColorOverviewRuler: '#a78bfa',
+  },
+}
 
 /** GPU renderer with a 2D-canvas fallback (WebGL contexts are capped per page). */
 function loadRenderer(term: Terminal): void {
@@ -22,6 +36,16 @@ function loadRenderer(term: Terminal): void {
       /* fall back to the default DOM renderer */
     }
   }
+}
+
+/** Imperative handle returned by useXterm, used by chrome (find bar, focus). */
+export interface XtermController {
+  /** Search the scrollback; returns whether a match was found. */
+  search: (query: string, opts?: { back?: boolean }) => boolean
+  /** Clear search highlights. */
+  clearSearch: () => void
+  /** Focus the terminal input. */
+  focus: () => void
 }
 
 export interface UseXtermOptions {
@@ -48,15 +72,24 @@ export interface UseXtermOptions {
 export function useXterm(
   containerRef: RefObject<HTMLDivElement | null>,
   opts: UseXtermOptions,
-): void {
+): XtermController {
   const ptyIdRef = useRef<string | null>(null)
   const startedRef = useRef(false)
   const termRef = useRef<Terminal | null>(null)
   const fitRef = useRef<FitAddon | null>(null)
+  const searchRef = useRef<SearchAddon | null>(null)
+  const controllerRef = useRef<XtermController>({
+    search: () => false,
+    clearSearch: () => undefined,
+    focus: () => undefined,
+  })
 
   const theme = useAppStore((s) => s.settings.theme)
   const customColors = useAppStore((s) => s.settings.customColors)
   const fontSize = useAppStore((s) => s.settings.fontSize)
+  const infiniteScrollback = useAppStore((s) => s.settings.infiniteScrollback)
+  const scrollback = useAppStore((s) => s.settings.scrollback)
+  const effectiveFontSize = opts.fontSize ?? fontSize
 
   useEffect(() => {
     const container = containerRef.current
@@ -71,18 +104,44 @@ export function useXterm(
       fontFamily: settings.fontFamily || "'JetBrains Mono', 'Fira Code', ui-monospace, monospace",
       fontSize: opts.fontSize ?? settings.fontSize ?? 13,
       theme: buildXtermTheme(settings.theme, settings.customColors),
-      cursorBlink: true,
-      scrollback: settings.scrollback ?? 5000,
+      // Blink only while focused (toggled in focusin/out below) so idle panes
+      // don't each schedule a repaint twice a second forever.
+      cursorBlink: false,
+      scrollback: settings.infiniteScrollback ? INFINITE_SCROLLBACK : (settings.scrollback ?? 5000),
       allowProposedApi: true,
     })
     const fit = new FitAddon()
+    const search = new SearchAddon()
     termRef.current = term
     fitRef.current = fit
+    searchRef.current = search
     term.loadAddon(fit)
     term.loadAddon(new WebLinksAddon())
+    term.loadAddon(search)
     term.open(container)
     loadRenderer(term)
     fit.fit()
+
+    // Cursor blinks only while this terminal has focus.
+    const onFocusIn = (): void => {
+      term.options.cursorBlink = true
+    }
+    const onFocusOut = (): void => {
+      term.options.cursorBlink = false
+    }
+    container.addEventListener('focusin', onFocusIn)
+    container.addEventListener('focusout', onFocusOut)
+
+    // Wire the imperative handle now that the addons exist.
+    controllerRef.current.search = (query, o) => {
+      if (!query) {
+        search.clearDecorations()
+        return false
+      }
+      return o?.back ? search.findPrevious(query, SEARCH_OPTS) : search.findNext(query, SEARCH_OPTS)
+    }
+    controllerRef.current.clearSearch = () => search.clearDecorations()
+    controllerRef.current.focus = () => term.focus()
 
     let disposed = false
     let offData: () => void = () => undefined
@@ -134,6 +193,8 @@ export function useXterm(
     return () => {
       disposed = true
       resizeObserver.disconnect()
+      container.removeEventListener('focusin', onFocusIn)
+      container.removeEventListener('focusout', onFocusOut)
       input.dispose()
       offData()
       offExit()
@@ -143,6 +204,12 @@ export function useXterm(
       ptyIdRef.current = null
       termRef.current = null
       fitRef.current = null
+      searchRef.current = null
+      controllerRef.current = {
+        search: () => false,
+        clearSearch: () => undefined,
+        focus: () => undefined,
+      }
       term.dispose()
       startedRef.current = false
     }
@@ -158,12 +225,12 @@ export function useXterm(
     if (term) term.options.theme = buildXtermTheme(theme, customColors)
   }, [theme, customColors])
 
-  // Live font-size updates — resize without remounting.
+  // Live font-size updates — per-pane override wins over the global size.
   useEffect(() => {
     const term = termRef.current
     const fit = fitRef.current
     if (!term) return
-    term.options.fontSize = fontSize
+    term.options.fontSize = effectiveFontSize
     try {
       fit?.fit()
     } catch {
@@ -171,7 +238,15 @@ export function useXterm(
     }
     const id = ptyIdRef.current
     if (id) window.snApi.pty.resize({ ptyId: id, cols: term.cols, rows: term.rows })
-  }, [fontSize])
+  }, [effectiveFontSize])
+
+  // Live scrollback updates (infinite ⇒ effectively unbounded buffer).
+  useEffect(() => {
+    const term = termRef.current
+    if (term) {
+      term.options.scrollback = infiniteScrollback ? INFINITE_SCROLLBACK : (scrollback ?? 5000)
+    }
+  }, [infiniteScrollback, scrollback])
 
   // Refit when this terminal becomes visible (hidden xterms can't measure).
   useEffect(() => {
@@ -190,4 +265,6 @@ export function useXterm(
     })
     return () => cancelAnimationFrame(raf)
   }, [opts.isActive])
+
+  return controllerRef.current
 }

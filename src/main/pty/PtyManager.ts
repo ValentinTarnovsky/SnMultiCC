@@ -6,13 +6,21 @@ import { cleanEnv, defaultShell, homeDir } from './shellResolver'
 
 interface Entry {
   pty: IPty
-  /** Coalescing buffer for output before it is flushed over IPC. */
-  buf: string
+  /**
+   * Coalescing buffer: raw chunks accumulated since the last flush, joined once
+   * at flush time. A chunk list avoids the O(n²) realloc of repeated `+=` on a
+   * fast pty (model output, build logs).
+   */
+  buf: string[]
   timer: ReturnType<typeof setTimeout> | null
 }
 
 /** Output is coalesced and flushed at ~120Hz to collapse IPC chatter. */
 const FLUSH_MS = 8
+
+/** Cap on a single IPC payload, so one huge burst is split across frames
+ *  instead of stalling the renderer with a giant structured-clone message. */
+const MAX_CHUNK = 256 * 1024
 
 /**
  * Owns every node-pty instance. The renderer never touches native modules;
@@ -40,7 +48,7 @@ export class PtyManager {
       env: cleanEnv(req.env),
     })
 
-    const entry: Entry = { pty: proc, buf: '', timer: null }
+    const entry: Entry = { pty: proc, buf: [], timer: null }
     this.entries.set(ptyId, entry)
 
     if (req.initialCommand && req.initialCommand.trim()) {
@@ -57,7 +65,7 @@ export class PtyManager {
     }
 
     proc.onData((data) => {
-      entry.buf += data
+      entry.buf.push(data)
       if (entry.timer === null) {
         entry.timer = setTimeout(() => this.flush(ptyId), FLUSH_MS)
       }
@@ -99,7 +107,11 @@ export class PtyManager {
   }
 
   killAll(): void {
-    for (const id of [...this.entries.keys()]) this.kill(id)
+    // Drain buffered output before tearing down so the last bytes aren't lost.
+    for (const id of [...this.entries.keys()]) {
+      this.flush(id)
+      this.kill(id)
+    }
   }
 
   private flush(ptyId: string): void {
@@ -110,9 +122,16 @@ export class PtyManager {
       entry.timer = null
     }
     if (entry.buf.length === 0) return
-    const data = entry.buf
-    entry.buf = ''
-    this.send(CH.PTY_DATA, { ptyId, data } satisfies PtyDataEvt)
+    const data = entry.buf.join('')
+    entry.buf = []
+    if (data.length <= MAX_CHUNK) {
+      this.send(CH.PTY_DATA, { ptyId, data } satisfies PtyDataEvt)
+      return
+    }
+    // Oversized burst: split into renderer-digestible frames.
+    for (let i = 0; i < data.length; i += MAX_CHUNK) {
+      this.send(CH.PTY_DATA, { ptyId, data: data.slice(i, i + MAX_CHUNK) } satisfies PtyDataEvt)
+    }
   }
 
   private dispose(ptyId: string): void {

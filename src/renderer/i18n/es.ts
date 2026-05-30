@@ -32,6 +32,11 @@ export const es: Record<keyof typeof en, string> = {
   'pane.restore': 'Restaurar',
   'pane.close': 'Cerrar',
 
+  // Búsqueda en consola
+  'search.placeholder': 'Buscar…',
+  'search.next': 'Siguiente',
+  'search.prev': 'Anterior',
+
   // Empty state
   'empty.title': 'Multi Command Consoles',
   'empty.subtitle': 'Creá un workspace en el directorio que quieras y abrí varias consolas a la vez.',
@@ -81,6 +86,9 @@ export const es: Record<keyof typeof en, string> = {
   'settings.shellMac': 'Shell (macOS)',
   'settings.shellLinux': 'Shell (Linux)',
   'settings.scrollback': 'Scrollback (líneas)',
+  'settings.infiniteScrollback': 'Scrollback infinito',
+  'settings.infiniteScrollbackHint':
+    'Mantené todo el output como una terminal normal. Desactivalo para limitar las líneas.',
   'settings.language': 'Idioma',
   'settings.languageHint': 'Idioma de la interfaz.',
   'settings.restoreLast': 'Restaurar el último workspace al abrir',

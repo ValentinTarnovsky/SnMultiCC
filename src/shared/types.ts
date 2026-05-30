@@ -3,6 +3,12 @@
  * Must stay free of Node/DOM imports so it is safe in the renderer bundle.
  */
 
+/**
+ * Persisted config schema version. Single source of truth for both the main
+ * process (schema/migrations) and the renderer (persistence writer).
+ */
+export const CONFIG_VERSION = 3
+
 export type PaneType = 'shell' | 'claude' | 'codex' | 'custom'
 
 export interface Pane {
@@ -17,6 +23,8 @@ export interface Pane {
   title: string
   color: string
   icon: string
+  /** Per-pane terminal font size override (Ctrl +/-/0, Ctrl+wheel). */
+  fontSize?: number
 }
 
 /** Number of terminals in a workspace grid; maps to a fixed CSS grid template. */
@@ -122,6 +130,8 @@ export interface Settings {
   customColors?: Partial<Record<ThemeTokenKey, string>>
   language: Language
   scrollback: number
+  /** When true, consoles keep effectively unlimited scrollback (like a normal terminal). */
+  infiniteScrollback: boolean
   restoreLastWorkspace: boolean
   confirmCloseRunning: boolean
   /** Installed build only: hide to tray on window close instead of quitting. */

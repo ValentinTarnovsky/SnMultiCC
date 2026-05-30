@@ -49,6 +49,7 @@ const DEFAULT_SETTINGS: Settings = {
   customColors: {},
   language: 'en',
   scrollback: 5000,
+  infiniteScrollback: true,
   restoreLastWorkspace: true,
   confirmCloseRunning: true,
   closeToTray: true,
@@ -98,6 +99,8 @@ export interface AppState {
   toggleSidebar: () => void
   addPane: (workspaceId: string, pane?: Partial<Pane>) => void
   removePane: (workspaceId: string, paneId: string) => void
+  renamePane: (workspaceId: string, paneId: string, title: string) => void
+  setPaneFontSize: (workspaceId: string, paneId: string, fontSize: number) => void
   setGrid: (workspaceId: string, grid: GridPreset) => void
   movePane: (workspaceId: string, paneId: string, toIndex: number) => void
   toggleMaximize: (workspaceId: string, paneId: string) => void
@@ -241,6 +244,37 @@ export const useAppStore = create<AppState>((set, get) => ({
           const grid = w.layout?.grid ?? gridForCount(panes.length)
           return { ...w, panes, layout: { grid, order } }
         }),
+      }
+    }),
+
+  renamePane: (workspaceId, paneId, title) =>
+    set((s) => ({
+      workspaces: s.workspaces.map((w) =>
+        w.id === workspaceId
+          ? {
+              ...w,
+              panes: w.panes.map((p) =>
+                p.id === paneId ? { ...p, title: title.trim() || p.title } : p,
+              ),
+            }
+          : w,
+      ),
+    })),
+
+  setPaneFontSize: (workspaceId, paneId, fontSize) =>
+    set((s) => {
+      const clamped = Math.max(8, Math.min(40, Math.round(fontSize)))
+      return {
+        workspaces: s.workspaces.map((w) =>
+          w.id === workspaceId
+            ? {
+                ...w,
+                panes: w.panes.map((p) =>
+                  p.id === paneId ? { ...p, fontSize: clamped } : p,
+                ),
+              }
+            : w,
+        ),
       }
     }),
 
