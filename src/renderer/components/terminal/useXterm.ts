@@ -147,30 +147,64 @@ export function useXterm(
     let offData: () => void = () => undefined
     let offExit: () => void = () => undefined
 
-    window.snApi.pty
-      .spawn({
-        paneId: opts.paneId,
-        shell: opts.shell,
-        cwd: opts.cwd,
-        initialCommand: opts.initialCommand,
-        cols: term.cols,
-        rows: term.rows,
-      })
-      .then(({ ptyId }) => {
-        if (disposed) {
-          void window.snApi.pty.kill(ptyId)
-          return
+    // Backpressure: throttle a chatty pty when xterm can't drain fast enough.
+    let pending = 0
+    let paused = false
+    const HIGH_WATER = 1_000_000
+    const LOW_WATER = 200_000
+
+    const bind = (ptyId: string): void => {
+      ptyIdRef.current = ptyId
+      registerPty(opts.paneId, ptyId)
+      offData = window.snApi.pty.onData((e) => {
+        if (e.ptyId !== ptyId) return
+        pending += e.data.length
+        if (!paused && pending > HIGH_WATER) {
+          paused = true
+          window.snApi.pty.flow({ ptyId, pause: true })
         }
-        ptyIdRef.current = ptyId
-        registerPty(opts.paneId, ptyId)
-        offData = window.snApi.pty.onData((e) => {
-          if (e.ptyId === ptyId) term.write(e.data)
-        })
-        offExit = window.snApi.pty.onExit((e) => {
-          if (e.ptyId === ptyId) {
-            term.write(`\r\n\x1b[2m[process exited (${e.exitCode})]\x1b[0m\r\n`)
+        term.write(e.data, () => {
+          pending -= e.data.length
+          if (paused && pending < LOW_WATER) {
+            paused = false
+            window.snApi.pty.flow({ ptyId, pause: false })
           }
         })
+      })
+      offExit = window.snApi.pty.onExit((e) => {
+        if (e.ptyId === ptyId) {
+          term.write(`\r\n\x1b[2m[process exited (${e.exitCode})]\x1b[0m\r\n`)
+        }
+      })
+    }
+
+    // Rebind to an already-running pty (renderer reload / remount) when one
+    // exists for this pane; otherwise spawn a fresh shell.
+    window.snApi.pty
+      .reattach(opts.paneId)
+      .then((existing) => {
+        if (disposed) return undefined
+        if (existing) {
+          if (existing.replay) term.write(existing.replay)
+          bind(existing.ptyId)
+          return undefined
+        }
+        return window.snApi.pty
+          .spawn({
+            paneId: opts.paneId,
+            shell: opts.shell,
+            cwd: opts.cwd,
+            initialCommand: opts.initialCommand,
+            cols: term.cols,
+            rows: term.rows,
+          })
+          .then(({ ptyId }) => {
+            if (disposed) {
+              void window.snApi.pty.kill(ptyId)
+              return
+            }
+            bind(ptyId)
+          })
       })
       .catch((err) => term.write(`\r\n\x1b[31mFailed to start shell: ${String(err)}\x1b[0m\r\n`))
 

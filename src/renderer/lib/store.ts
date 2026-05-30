@@ -11,6 +11,7 @@ import type {
 } from '@shared/types'
 import { gridForCount } from '@/components/layout/gridTemplates'
 import { killPanePtys } from '@/lib/ptyRegistry'
+import { useActivityStore } from '@/lib/activityStore'
 
 const ACCENTS = ['#6366f1', '#8b5cf6', '#60a5fa']
 
@@ -56,6 +57,10 @@ const DEFAULT_SETTINGS: Settings = {
   launchOnStartup: false,
   globalHotkeyEnabled: false,
   globalHotkey: 'Super+Alt+O',
+  showPaneStatus: true,
+  notifyOnDone: true,
+  notifyOnWaiting: true,
+  notifySound: false,
   sidebarCollapsed: false,
 }
 
@@ -192,7 +197,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   deleteWorkspace: (id) => {
     // Force-kill the workspace's consoles so nothing lingers in the background.
     const ws = get().workspaces.find((w) => w.id === id)
-    if (ws) killPanePtys(ws.panes.map((p) => p.id))
+    if (ws) {
+      killPanePtys(ws.panes.map((p) => p.id))
+      ws.panes.forEach((p) => useActivityStore.getState().clear(p.id))
+    }
     set((s) => {
       const workspaces = s.workspaces.filter((w) => w.id !== id)
       const activeWorkspaceId =
@@ -231,7 +239,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       }),
     })),
 
-  removePane: (workspaceId, paneId) =>
+  removePane: (workspaceId, paneId) => {
+    useActivityStore.getState().clear(paneId)
     set((s) => {
       const maximized = { ...s.maximized }
       if (maximized[workspaceId] === paneId) maximized[workspaceId] = null
@@ -245,7 +254,8 @@ export const useAppStore = create<AppState>((set, get) => ({
           return { ...w, panes, layout: { grid, order } }
         }),
       }
-    }),
+    })
+  },
 
   renamePane: (workspaceId, paneId, title) =>
     set((s) => ({

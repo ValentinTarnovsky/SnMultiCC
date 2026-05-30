@@ -10,7 +10,9 @@ import {
   StarOff,
   Trash2,
 } from 'lucide-react'
+import type { PaneState } from '@shared/types'
 import { useAppStore } from '@/lib/store'
+import { useActivityStore } from '@/lib/activityStore'
 import { useT } from '@/i18n'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { ContextMenu, type ContextMenuItem } from '@/components/ui/ContextMenu'
@@ -21,6 +23,25 @@ interface MenuState {
   x: number
   y: number
   wsId: string
+}
+
+const DOT: Record<PaneState, string> = {
+  working: 'bg-emerald-400',
+  waiting: 'bg-amber-400',
+  idle: 'bg-text-secondary/40',
+  exited: 'bg-red-400',
+}
+const PRIORITY: Record<PaneState, number> = { waiting: 3, working: 2, exited: 1, idle: 0 }
+
+/** Worst-priority non-idle state across a workspace's panes (null if all idle). */
+function aggregate(paneIds: string[], states: Record<string, PaneState>): PaneState | null {
+  let best: PaneState | null = null
+  for (const id of paneIds) {
+    const st = states[id]
+    if (!st || st === 'idle') continue
+    if (!best || PRIORITY[st] > PRIORITY[best]) best = st
+  }
+  return best
 }
 
 export function Sidebar() {
@@ -38,6 +59,7 @@ export function Sidebar() {
     setWizardOpen,
   } = useAppStore()
 
+  const states = useActivityStore((s) => s.states)
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
@@ -136,6 +158,10 @@ export function Sidebar() {
           const active = w.id === activeWorkspaceId
           const WsIcon = iconFor(w.panes[0]?.icon)
           const renaming = renamingId === w.id
+          const dotState = aggregate(
+            w.panes.map((p) => p.id),
+            states,
+          )
           return (
             <div
               key={w.id}
@@ -150,6 +176,14 @@ export function Sidebar() {
             >
               {active && (
                 <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-accent-violet" />
+              )}
+              {sidebarCollapsed && dotState && (
+                <span
+                  className={cn(
+                    'pointer-events-none absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full',
+                    DOT[dotState],
+                  )}
+                />
               )}
 
               {renaming && !sidebarCollapsed ? (
@@ -191,6 +225,14 @@ export function Sidebar() {
                         <span className="truncate">{w.name}</span>
                         {w.favorite && (
                           <Star size={11} className="shrink-0 fill-amber-400 text-amber-400" />
+                        )}
+                        {dotState && (
+                          <span
+                            className={cn(
+                              'ml-auto mr-0.5 h-1.5 w-1.5 shrink-0 rounded-full',
+                              DOT[dotState],
+                            )}
+                          />
                         )}
                       </span>
                       <span className="block truncate text-[11px] text-text-secondary">

@@ -5,9 +5,12 @@ import type {
   AppMetrics,
   PtyDataEvt,
   PtyExitEvt,
+  PtyFlowReq,
+  PtyReattachRes,
   PtyResizeReq,
   PtySpawnReq,
   PtySpawnRes,
+  PtyStateEvt,
   PtyWriteReq,
   SnApi,
 } from '@shared/ipc-contract'
@@ -27,11 +30,16 @@ const api: SnApi = {
   },
   pty: {
     spawn: (req: PtySpawnReq) => ipcRenderer.invoke(CH.PTY_SPAWN, req) as Promise<PtySpawnRes>,
+    reattach: (paneId: string) =>
+      ipcRenderer.invoke(CH.PTY_REATTACH, paneId) as Promise<PtyReattachRes | null>,
     write: (req: PtyWriteReq) => ipcRenderer.send(CH.PTY_WRITE, req),
     resize: (req: PtyResizeReq) => ipcRenderer.send(CH.PTY_RESIZE, req),
     kill: (ptyId: string) => ipcRenderer.invoke(CH.PTY_KILL, ptyId) as Promise<void>,
+    setActive: (paneIds: string[]) => ipcRenderer.send(CH.PTY_SET_ACTIVE, paneIds),
+    flow: (req: PtyFlowReq) => ipcRenderer.send(CH.PTY_FLOW, req),
     onData: (cb: (e: PtyDataEvt) => void) => sub<PtyDataEvt>(CH.PTY_DATA, cb),
     onExit: (cb: (e: PtyExitEvt) => void) => sub<PtyExitEvt>(CH.PTY_EXIT, cb),
+    onState: (cb: (e: PtyStateEvt) => void) => sub<PtyStateEvt>(CH.PTY_STATE, cb),
   },
   dialog: {
     openDirectory: () => ipcRenderer.invoke(CH.DIALOG_OPEN_DIR) as Promise<string | null>,
@@ -55,6 +63,8 @@ const api: SnApi = {
     setGlobalHotkey: (enabled: boolean, accelerator: string) =>
       ipcRenderer.invoke(CH.SYSTEM_SET_HOTKEY, { enabled, accelerator }) as Promise<boolean>,
     getMetrics: () => ipcRenderer.invoke(CH.SYSTEM_METRICS) as Promise<AppMetrics>,
+    focus: () => ipcRenderer.send(CH.SYSTEM_FOCUS),
+    requestAttention: () => ipcRenderer.send(CH.SYSTEM_ATTENTION),
   },
 }
 

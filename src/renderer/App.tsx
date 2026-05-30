@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { startPersistence } from '@/lib/persist'
+import { usePtyActivity } from '@/lib/usePtyActivity'
 import { applyTheme } from '@/themes'
 import { I18nProvider, useT } from '@/i18n'
 import { Sidebar } from '@/components/sidebar/Sidebar'
@@ -55,6 +56,9 @@ function AppBody() {
   const t = useT()
   const workspaces = useAppStore((s) => s.workspaces)
   const setWizardOpen = useAppStore((s) => s.setWizardOpen)
+
+  // Mirror per-pane activity into the store + fire desktop notifications.
+  usePtyActivity()
 
   const onNew = (): void => setWizardOpen(true)
 
