@@ -11,6 +11,7 @@ export const en = {
   'common.close': 'Close',
 
   // Sidebar
+  'sidebar.header': 'Workspaces',
   'sidebar.newWorkspace': 'New workspace',
   'sidebar.settings': 'Settings',
   'sidebar.expand': 'Expand',

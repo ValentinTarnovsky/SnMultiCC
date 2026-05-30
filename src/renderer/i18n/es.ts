@@ -13,6 +13,7 @@ export const es: Record<keyof typeof en, string> = {
   'common.close': 'Cerrar',
 
   // Sidebar
+  'sidebar.header': 'Workspaces',
   'sidebar.newWorkspace': 'Nuevo workspace',
   'sidebar.settings': 'Ajustes',
   'sidebar.expand': 'Expandir',
