@@ -101,6 +101,11 @@ export interface SnApi {
     /** Opens a native folder picker; resolves to the chosen path or null. */
     openDirectory(): Promise<string | null>
   }
+  /** System clipboard, used for terminal copy/paste. */
+  clipboard: {
+    writeText(text: string): void
+    readText(): Promise<string>
+  }
   config: {
     /** Loads persisted config, or null if none / invalid. */
     load(): Promise<ConfigFile | null>

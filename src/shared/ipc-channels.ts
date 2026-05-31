@@ -26,6 +26,10 @@ export const CH = {
   // Dialogs
   DIALOG_OPEN_DIR: 'dialog:openDirectory',
 
+  // Clipboard (terminal copy/paste)
+  CLIPBOARD_WRITE: 'clipboard:write', // send (text)
+  CLIPBOARD_READ: 'clipboard:read', // invoke -> string
+
   // Window controls (custom frameless title bar)
   WINDOW_MINIMIZE: 'window:minimize', // send
   WINDOW_MAXIMIZE: 'window:maximize', // send (toggles maximize/restore)

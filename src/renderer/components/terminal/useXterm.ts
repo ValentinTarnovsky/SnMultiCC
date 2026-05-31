@@ -147,6 +147,37 @@ export function useXterm(
     controllerRef.current.clearSearch = () => search.clearDecorations()
     controllerRef.current.focus = () => term.focus()
 
+    // Terminal copy/paste via the Electron clipboard. Ctrl+C copies the
+    // selection (else falls through to ^C / interrupt); Ctrl+V pastes;
+    // Ctrl+Shift+C / Ctrl+Shift+V are explicit copy/paste.
+    term.attachCustomKeyEventHandler((e) => {
+      if (e.type !== 'keydown') return true
+      const mod = e.ctrlKey || e.metaKey
+      if (!mod || e.altKey) return true
+      const key = e.key.toLowerCase()
+      if (key === 'c') {
+        if (term.hasSelection()) {
+          e.preventDefault()
+          window.snApi.clipboard.writeText(term.getSelection())
+          return false
+        }
+        if (e.shiftKey) {
+          e.preventDefault()
+          return false
+        }
+        return true // nothing selected → let ^C interrupt the process
+      }
+      if (key === 'v') {
+        e.preventDefault()
+        void window.snApi.clipboard.readText().then((text) => {
+          const id = ptyIdRef.current
+          if (id && text) window.snApi.pty.write({ ptyId: id, data: text })
+        })
+        return false
+      }
+      return true
+    })
+
     let disposed = false
     let offData: () => void = () => undefined
     let offExit: () => void = () => undefined

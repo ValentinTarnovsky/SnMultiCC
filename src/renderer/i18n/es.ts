@@ -50,15 +50,6 @@ export const es: Record<keyof typeof en, string> = {
   'pane.close': 'Cerrar',
   'pane.restart': 'Reiniciar consola',
 
-  // Selector de modelo
-  'model.change': 'Cambiar modelo…',
-  'model.title': 'Modelo de la consola',
-  'model.placeholder': 'Modelo (vacío = por defecto)',
-  'model.default': 'Por defecto',
-  'model.applyAll': 'Aplicar a todas las consolas del workspace',
-  'model.apply': 'Aplicar y reiniciar',
-  'model.hint': 'Cambiar el modelo reinicia la consola.',
-
   // Búsqueda en consola
   'search.placeholder': 'Buscar…',
   'search.next': 'Siguiente',

@@ -108,8 +108,6 @@ export interface AppState {
   setPaneFontSize: (workspaceId: string, paneId: string, fontSize: number) => void
   /** Force a console to relaunch (kills + respawns its pty via remount). */
   restartPane: (paneId: string) => void
-  setPaneModel: (workspaceId: string, paneId: string, model: string) => void
-  setWorkspaceModel: (workspaceId: string, model: string) => void
   setGrid: (workspaceId: string, grid: GridPreset) => void
   movePane: (workspaceId: string, paneId: string, toIndex: number) => void
   toggleMaximize: (workspaceId: string, paneId: string) => void
@@ -297,38 +295,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   restartPane: (paneId) =>
     set((s) => ({ paneEpoch: { ...s.paneEpoch, [paneId]: (s.paneEpoch[paneId] ?? 0) + 1 } })),
-
-  setPaneModel: (workspaceId, paneId, model) =>
-    set((s) => ({
-      paneEpoch: { ...s.paneEpoch, [paneId]: (s.paneEpoch[paneId] ?? 0) + 1 },
-      workspaces: s.workspaces.map((w) =>
-        w.id === workspaceId
-          ? {
-              ...w,
-              panes: w.panes.map((p) =>
-                p.id === paneId ? { ...p, model: model.trim() || undefined } : p,
-              ),
-            }
-          : w,
-      ),
-    })),
-
-  setWorkspaceModel: (workspaceId, model) =>
-    set((s) => {
-      const paneEpoch = { ...s.paneEpoch }
-      const workspaces = s.workspaces.map((w) => {
-        if (w.id !== workspaceId) return w
-        const panes = w.panes.map((p) => {
-          if (p.type === 'claude' || p.type === 'codex') {
-            paneEpoch[p.id] = (paneEpoch[p.id] ?? 0) + 1
-            return { ...p, model: model.trim() || undefined }
-          }
-          return p
-        })
-        return { ...w, panes }
-      })
-      return { workspaces, paneEpoch }
-    }),
 
   setGrid: (workspaceId, grid) =>
     set((s) => ({

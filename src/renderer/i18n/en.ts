@@ -48,15 +48,6 @@ export const en = {
   'pane.close': 'Close',
   'pane.restart': 'Restart console',
 
-  // Model picker
-  'model.change': 'Change model…',
-  'model.title': 'Console model',
-  'model.placeholder': 'Model (blank = default)',
-  'model.default': 'Default',
-  'model.applyAll': 'Apply to all consoles in this workspace',
-  'model.apply': 'Apply & restart',
-  'model.hint': 'Changing the model restarts the console.',
-
   // In-pane search
   'search.placeholder': 'Find…',
   'search.next': 'Next match',

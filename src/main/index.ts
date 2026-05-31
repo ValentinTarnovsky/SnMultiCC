@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain, session } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, globalShortcut, ipcMain, session } from 'electron'
 import { CH } from '@shared/ipc-channels'
 import type { AppInfo, AppMetrics } from '@shared/ipc-contract'
 import type { ConfigFile } from '@shared/types'
@@ -90,6 +90,11 @@ function registerConfigIpc(): void {
   ipcMain.on(CH.CONFIG_SAVE, (_e, config: ConfigFile) => configStore.save(config))
 }
 
+function registerClipboardIpc(): void {
+  ipcMain.on(CH.CLIPBOARD_WRITE, (_e, text: string) => clipboard.writeText(String(text ?? '')))
+  ipcMain.handle(CH.CLIPBOARD_READ, (): string => clipboard.readText())
+}
+
 function registerDialogIpc(): void {
   ipcMain.handle(CH.DIALOG_OPEN_DIR, async (): Promise<string | null> => {
     const result = mainWindow
@@ -152,6 +157,7 @@ app.whenReady().then(() => {
   registerAppIpc()
   registerConfigIpc()
   registerDialogIpc()
+  registerClipboardIpc()
   registerPtyIpc(ptyManager)
   registerWindowIpc(() => mainWindow)
   registerSystemIpc()

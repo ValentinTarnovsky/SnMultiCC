@@ -1,5 +1,5 @@
 import { useState, type DragEvent } from 'react'
-import { Bot, GripVertical, Maximize2, Minimize2, Pencil, RotateCw, X } from 'lucide-react'
+import { GripVertical, Maximize2, Minimize2, Pencil, RotateCw, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import type { AgentPreset, Pane, Workspace } from '@shared/types'
 import { useAppStore } from '@/lib/store'
@@ -8,7 +8,6 @@ import { getPtyId } from '@/lib/ptyRegistry'
 import { iconFor } from '@/lib/icons'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { ContextMenu, type ContextMenuItem } from '@/components/ui/ContextMenu'
-import { ModelPicker } from '@/components/ui/ModelPicker'
 import { TerminalPane } from '@/components/terminal/TerminalPane'
 import { useT } from '@/i18n'
 import { cn } from '@/lib/cn'
@@ -55,14 +54,10 @@ export function PaneCell({
 
   const renamePane = useAppStore((s) => s.renamePane)
   const restartPane = useAppStore((s) => s.restartPane)
-  const setPaneModel = useAppStore((s) => s.setPaneModel)
-  const setWorkspaceModel = useAppStore((s) => s.setWorkspaceModel)
   const epoch = useAppStore((s) => s.paneEpoch[pane.id] ?? 0)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
-  const [modelOpen, setModelOpen] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [nameVal, setNameVal] = useState(pane.title)
-  const isAgent = pane.type === 'claude' || pane.type === 'codex'
 
   const startRename = (): void => {
     setNameVal(pane.title)
@@ -73,24 +68,27 @@ export function PaneCell({
     setRenaming(false)
   }
 
-  // Drop a folder onto the console: shell → cd into it; agent → paste the path.
+  // Drop file(s)/folder(s) onto the console. A single folder in a shell cds
+  // into it; anything else pastes every dropped path (quoted, space-separated).
   const onDropFolder = (e: DragEvent): void => {
     if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return
     e.preventDefault()
     e.stopPropagation()
-    const path = window.snApi.filePath(e.dataTransfer.files[0])
-    if (!path) return
+    const paths = Array.from(e.dataTransfer.files)
+      .map((f) => window.snApi.filePath(f))
+      .filter(Boolean)
+    if (paths.length === 0) return
     const ptyId = getPtyId(pane.id)
     if (!ptyId) return
-    const data = pane.type === 'shell' ? `cd "${path}"\r` : `"${path}" `
+    const data =
+      pane.type === 'shell' && paths.length === 1
+        ? `cd "${paths[0]}"\r`
+        : `${paths.map((p) => `"${p}"`).join(' ')} `
     window.snApi.pty.write({ ptyId, data })
   }
 
   const menuItems: ContextMenuItem[] = [
     { label: t('ctx.rename'), icon: Pencil, onClick: startRename },
-    ...(isAgent
-      ? [{ label: t('model.change'), icon: Bot, onClick: () => setModelOpen(true) }]
-      : []),
     {
       label: isMax ? t('pane.restore') : t('pane.maximize'),
       icon: isMax ? Minimize2 : Maximize2,
@@ -191,18 +189,6 @@ export function PaneCell({
       {menu && (
         <ContextMenu x={menu.x} y={menu.y} items={menuItems} onClose={() => setMenu(null)} />
       )}
-
-      <ModelPicker
-        open={modelOpen}
-        paneType={pane.type}
-        current={pane.model}
-        onApply={(model, all) => {
-          if (all) setWorkspaceModel(workspace.id, model)
-          else setPaneModel(workspace.id, pane.id, model)
-          setModelOpen(false)
-        }}
-        onCancel={() => setModelOpen(false)}
-      />
     </motion.div>
   )
 }

@@ -44,6 +44,10 @@ const api: SnApi = {
   dialog: {
     openDirectory: () => ipcRenderer.invoke(CH.DIALOG_OPEN_DIR) as Promise<string | null>,
   },
+  clipboard: {
+    writeText: (text: string) => ipcRenderer.send(CH.CLIPBOARD_WRITE, text),
+    readText: () => ipcRenderer.invoke(CH.CLIPBOARD_READ) as Promise<string>,
+  },
   config: {
     load: () => ipcRenderer.invoke(CH.CONFIG_LOAD) as Promise<ConfigFile | null>,
     save: (config: ConfigFile) => ipcRenderer.send(CH.CONFIG_SAVE, config),
