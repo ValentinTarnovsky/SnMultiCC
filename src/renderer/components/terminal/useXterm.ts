@@ -83,6 +83,10 @@ export function useXterm(
     clearSearch: () => undefined,
     focus: () => undefined,
   })
+  // Backpressure bookkeeping (kept in refs so the reveal effect can reset it).
+  const pendingRef = useRef(0)
+  const pausedRef = useRef(false)
+  const activeRef = useRef<boolean>(Boolean(opts.isActive))
 
   const theme = useAppStore((s) => s.settings.theme)
   const customColors = useAppStore((s) => s.settings.customColors)
@@ -147,26 +151,29 @@ export function useXterm(
     let offData: () => void = () => undefined
     let offExit: () => void = () => undefined
 
-    // Backpressure: throttle a chatty pty when xterm can't drain fast enough.
-    let pending = 0
-    let paused = false
+    // Backpressure: throttle a chatty *visible* pty when xterm can't drain.
+    // Hidden panes are NEVER paused — background agents must keep running, and a
+    // display:none xterm may not fire write callbacks, which would otherwise
+    // stall the pty (freezing its activity state). See the reveal effect below.
     const HIGH_WATER = 1_000_000
     const LOW_WATER = 200_000
+    pendingRef.current = 0
+    pausedRef.current = false
 
     const bind = (ptyId: string): void => {
       ptyIdRef.current = ptyId
       registerPty(opts.paneId, ptyId)
       offData = window.snApi.pty.onData((e) => {
         if (e.ptyId !== ptyId) return
-        pending += e.data.length
-        if (!paused && pending > HIGH_WATER) {
-          paused = true
+        pendingRef.current += e.data.length
+        if (activeRef.current && !pausedRef.current && pendingRef.current > HIGH_WATER) {
+          pausedRef.current = true
           window.snApi.pty.flow({ ptyId, pause: true })
         }
         term.write(e.data, () => {
-          pending -= e.data.length
-          if (paused && pending < LOW_WATER) {
-            paused = false
+          pendingRef.current -= e.data.length
+          if (pausedRef.current && pendingRef.current < LOW_WATER) {
+            pausedRef.current = false
             window.snApi.pty.flow({ ptyId, pause: false })
           }
         })
@@ -281,6 +288,20 @@ export function useXterm(
       term.options.scrollback = infiniteScrollback ? INFINITE_SCROLLBACK : (scrollback ?? 5000)
     }
   }, [infiniteScrollback, scrollback])
+
+  // Track visibility for backpressure; on reveal, drop any stale pending count
+  // (a hidden xterm may not have fired its write callbacks) and unpause.
+  useEffect(() => {
+    activeRef.current = Boolean(opts.isActive)
+    if (opts.isActive) {
+      pendingRef.current = 0
+      if (pausedRef.current) {
+        pausedRef.current = false
+        const id = ptyIdRef.current
+        if (id) window.snApi.pty.flow({ ptyId: id, pause: false })
+      }
+    }
+  }, [opts.isActive])
 
   // Refit when this terminal becomes visible (hidden xterms can't measure).
   useEffect(() => {

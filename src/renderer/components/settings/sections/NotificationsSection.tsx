@@ -35,13 +35,35 @@ export function NotificationsSection() {
           onChange={(v) => updateSettings({ notifySound: v })}
           title={t('settings.notifySound')}
         />
-        <button
-          type="button"
-          onClick={() => playBeep()}
-          className="rounded-btn border border-border bg-bg-secondary px-3 py-1.5 text-xs text-text-primary transition-colors hover:border-accent-violet/40"
-        >
-          {t('settings.testSound')}
-        </button>
+
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-sm font-medium text-text-primary">
+              {t('settings.notifyVolume')}
+            </span>
+            <span className="font-mono text-xs tabular-nums text-text-secondary">
+              {settings.notifyVolume}%
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={settings.notifyVolume}
+              onChange={(e) => updateSettings({ notifyVolume: Number(e.target.value) })}
+              className="h-1.5 flex-1 cursor-pointer accent-accent-violet"
+            />
+            <button
+              type="button"
+              onClick={() => playBeep(settings.notifyVolume / 100)}
+              className="shrink-0 rounded-btn border border-border bg-bg-secondary px-3 py-1.5 text-xs text-text-primary transition-colors hover:border-accent-violet/40"
+            >
+              {t('settings.testSound')}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -10,6 +10,7 @@ import { WorkspaceHost } from '@/components/layout/WorkspaceHost'
 import { SettingsModal } from '@/components/settings/SettingsModal'
 import { NewWorkspaceWizard } from '@/components/wizard/NewWorkspaceWizard'
 import { TitleBar } from '@/components/titlebar/TitleBar'
+import { Toaster } from '@/components/ui/Toaster'
 import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
 
@@ -84,6 +85,7 @@ function AppBody() {
       </main>
       <SettingsModal />
       <NewWorkspaceWizard />
+      <Toaster />
     </div>
   )
 }

@@ -1,45 +1,56 @@
 import { useEffect, useRef } from 'react'
-import type { PaneState } from '@shared/types'
+import type { PaneState, Settings } from '@shared/types'
 import { useAppStore } from './store'
 import { useActivityStore } from './activityStore'
+import { useToastStore } from './toastStore'
 import { playBeep } from './sound'
 import { useT, type TFn } from '@/i18n'
 
-/** A "working" spell shorter than this isn't worth a "done" notification. */
-const MIN_WORK_MS = 8000
+/** A "working" spell shorter than this isn't worth a "done" alert. */
+const MIN_WORK_MS = 5000
 
 interface PaneRef {
   title: string
   type: string
   workspaceId: string
+  workspaceName: string
 }
 
 function findPane(paneId: string): PaneRef | null {
   for (const w of useAppStore.getState().workspaces) {
     const p = w.panes.find((pane) => pane.id === paneId)
-    if (p) return { title: p.title, type: p.type, workspaceId: w.id }
+    if (p) return { title: p.title, type: p.type, workspaceId: w.id, workspaceName: w.name }
   }
   return null
 }
 
-function notify(title: string, body: string, workspaceId: string, sound: boolean): void {
+/** In-app toast + best-effort OS notification + optional chime. */
+function raiseAlert(kind: 'done' | 'waiting', pane: PaneRef, body: string, settings: Settings): void {
+  useToastStore.getState().push({
+    kind,
+    title: pane.title,
+    body,
+    workspaceId: pane.workspaceId,
+    workspaceName: pane.workspaceName,
+  })
   try {
-    const n = new Notification(title, { body, silent: true })
+    const n = new Notification(pane.title, { body: `${body} · ${pane.workspaceName}`, silent: true })
     n.onclick = () => {
-      useAppStore.getState().setActive(workspaceId)
+      useAppStore.getState().setActive(pane.workspaceId)
       window.snApi.system.focus()
     }
   } catch {
     /* notifications unavailable */
   }
   window.snApi.system.requestAttention()
-  if (sound) playBeep()
+  if (settings.notifySound) playBeep(settings.notifyVolume / 100)
 }
 
 /**
  * Subscribes to per-pane activity (S3) once, mirrors it into the activity store
- * for the status overlays, and fires desktop notifications on the meaningful
- * transitions (task done / waiting for input) when the pane isn't in view.
+ * for the status overlays, and raises an alert (toast + notification + chime)
+ * on the meaningful transitions (task done / waiting for input) when the pane
+ * isn't currently in view.
  */
 export function usePtyActivity(): void {
   const t = useT()
@@ -68,12 +79,12 @@ export function usePtyActivity(): void {
       if (prev === 'working' && state === 'idle' && settings.notifyOnDone) {
         const secs = Math.round((Date.now() - (workingSinceRef.current[paneId] ?? 0)) / 1000)
         if (secs * 1000 >= MIN_WORK_MS) {
-          notify(pane.title, tRef.current('notify.doneBody', { secs }), pane.workspaceId, settings.notifySound)
+          raiseAlert('done', pane, tRef.current('notify.doneBody', { secs }), settings)
         }
       }
       // Console is waiting for the user to answer a prompt.
       if (state === 'waiting' && prev !== 'waiting' && settings.notifyOnWaiting) {
-        notify(pane.title, tRef.current('notify.waitingBody'), pane.workspaceId, settings.notifySound)
+        raiseAlert('waiting', pane, tRef.current('notify.waitingBody'), settings)
       }
     })
     return off

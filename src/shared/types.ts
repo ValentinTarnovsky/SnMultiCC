@@ -159,6 +159,8 @@ export interface Settings {
   notifyOnWaiting: boolean
   /** Play a short sound alongside notifications. */
   notifySound: boolean
+  /** Notification sound volume, 0–100. */
+  notifyVolume: number
   sidebarCollapsed: boolean
 }
 

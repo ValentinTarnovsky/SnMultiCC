@@ -108,6 +108,7 @@ export const en = {
   'settings.notifyOnWaiting': 'Notify when a console needs input',
   'settings.notifyOnWaitingHint': 'When a console looks like it’s waiting for your answer.',
   'settings.notifySound': 'Play a sound with notifications',
+  'settings.notifyVolume': 'Notification volume',
   'settings.testSound': 'Test sound',
   'notify.doneBody': 'Finished ({secs}s)',
   'notify.waitingBody': 'Waiting for your input',

@@ -61,6 +61,7 @@ const DEFAULT_SETTINGS: Settings = {
   notifyOnDone: true,
   notifyOnWaiting: true,
   notifySound: false,
+  notifyVolume: 60,
   sidebarCollapsed: false,
 }
 

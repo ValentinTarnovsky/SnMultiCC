@@ -73,6 +73,7 @@ const settingsSchema = z.object({
   notifyOnDone: z.boolean().default(true),
   notifyOnWaiting: z.boolean().default(true),
   notifySound: z.boolean().default(false),
+  notifyVolume: z.number().default(60),
   sidebarCollapsed: z.boolean(),
 })
 

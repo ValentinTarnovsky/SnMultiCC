@@ -42,8 +42,10 @@ const HIDDEN_FLUSH_MS = 250
 const MAX_CHUNK = 256 * 1024
 /** Replay ring-buffer size per pty. */
 const HISTORY_CAP = 256 * 1024
-/** Quiet for this long ⇒ classify the pane (idle, or waiting if it's a prompt). */
-const IDLE_AFTER_MS = 800
+/** Quiet for this long ⇒ classify the pane (idle, or waiting if it's a prompt).
+ *  Generous so brief "thinking" pauses don't flip an agent to idle (less dot
+ *  flicker, and a more accurate working→idle "done" edge). */
+const IDLE_AFTER_MS = 1500
 /** Gap (ms) that separates two output bursts. */
 const BURST_GAP_MS = 400
 /** Continuous output beyond this ⇒ the console is genuinely "working". */
