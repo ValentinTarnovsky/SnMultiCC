@@ -25,6 +25,8 @@ export interface Pane {
   icon: string
   /** Per-pane terminal font size override (Ctrl +/-/0, Ctrl+wheel). */
   fontSize?: number
+  /** Model passed to the agent CLI at launch (claude/codex), e.g. "opus". */
+  model?: string
 }
 
 /** Number of terminals in a workspace grid; maps to a fixed CSS grid template. */

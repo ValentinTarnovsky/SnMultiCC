@@ -15,6 +15,7 @@ const paneSchema = z.object({
   color: z.string(),
   icon: z.string(),
   fontSize: z.number().optional(),
+  model: z.string().optional(),
 })
 
 const layoutSchema = z

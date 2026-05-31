@@ -24,5 +24,11 @@ export function resolveLaunch(
     initialCommand = [preset.command, ...preset.args].join(' ').trim()
   }
 
+  // Per-pane model → append the agent's model flag (claude: --model, codex: -m).
+  if (initialCommand && pane.model && pane.model.trim() && pane.type !== 'shell') {
+    const flag = pane.type === 'codex' ? '-m' : '--model'
+    initialCommand = `${initialCommand} ${flag} ${pane.model.trim()}`
+  }
+
   return { cwd, initialCommand }
 }

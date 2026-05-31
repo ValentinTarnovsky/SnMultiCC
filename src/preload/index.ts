@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
+import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron'
 import { CH } from '@shared/ipc-channels'
 import type {
   AppInfo,
@@ -24,6 +24,8 @@ function sub<T>(channel: string, cb: (payload: T) => void): () => void {
 
 const api: SnApi = {
   platform: process.platform,
+  filePath: (file: unknown) =>
+    webUtils.getPathForFile(file as Parameters<typeof webUtils.getPathForFile>[0]),
   app: {
     info: () => ipcRenderer.invoke(CH.APP_INFO) as Promise<AppInfo>,
   },

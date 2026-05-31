@@ -76,6 +76,8 @@ export interface PtyFlowReq {
 /** The object exposed on window.snApi via contextBridge. */
 export interface SnApi {
   platform: string
+  /** Resolve the absolute path of a dropped File (Electron webUtils). */
+  filePath(file: unknown): string
   app: {
     info(): Promise<AppInfo>
   }
