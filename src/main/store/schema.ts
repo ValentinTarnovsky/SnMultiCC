@@ -72,12 +72,19 @@ const settingsSchema = z.object({
   sidebarCollapsed: z.boolean(),
 })
 
+const snippetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  text: z.string(),
+})
+
 const configSchema = z.object({
   version: z.number(),
   workspaces: z.array(workspaceSchema),
   presets: z.array(presetSchema),
   settings: settingsSchema,
   activeWorkspaceId: z.string().nullable().optional(),
+  snippets: z.array(snippetSchema).optional().catch(undefined),
 })
 
 /** Validates a raw parsed object into a ConfigFile, or null if invalid. */

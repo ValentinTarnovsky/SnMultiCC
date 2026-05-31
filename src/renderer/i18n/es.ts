@@ -39,8 +39,15 @@ export const es: Record<keyof typeof en, string> = {
   'palette.console': 'Consola',
   'palette.appearance': 'Apariencia',
   'palette.newConsole': 'Nueva consola',
+  'palette.snippet': 'Snippet',
   'palette.theme': 'Tema',
   'palette.toggleSidebar': 'Mostrar/ocultar barra lateral',
+
+  // Snippets
+  'snippets.hint': 'Prompts guardados para insertar en la consola enfocada (Ctrl+K → Snippet).',
+  'snippets.new': 'Nuevo snippet',
+  'snippets.name': 'Nombre',
+  'snippets.text': 'Texto',
 
   // Datos
   'settings.cat.data': 'Datos',
@@ -99,6 +106,7 @@ export const es: Record<keyof typeof en, string> = {
   'settings.cat.terminal': 'Terminal',
   'settings.cat.language': 'Idioma',
   'settings.cat.agents': 'Modelos',
+  'settings.cat.snippets': 'Snippets',
   'settings.cat.startup': 'Inicio',
   'settings.cat.usage': 'Uso',
   'settings.cat.about': 'Acerca de',

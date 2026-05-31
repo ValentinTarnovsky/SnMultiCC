@@ -9,6 +9,7 @@ import '@xterm/xterm/css/xterm.css'
 import { useAppStore } from '@/lib/store'
 import { buildXtermTheme } from '@/themes'
 import { registerPty, unregisterPty } from '@/lib/ptyRegistry'
+import { setFocusedPane } from '@/lib/focus'
 
 /** Line cap used to emulate "infinite" scrollback (like a normal terminal). */
 const INFINITE_SCROLLBACK = 100000
@@ -129,6 +130,7 @@ export function useXterm(
     // Cursor blinks only while this terminal has focus.
     const onFocusIn = (): void => {
       term.options.cursorBlink = true
+      setFocusedPane(opts.paneId)
     }
     const onFocusOut = (): void => {
       term.options.cursorBlink = false

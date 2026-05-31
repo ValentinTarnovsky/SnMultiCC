@@ -6,6 +6,7 @@ import type {
   Pane,
   PaneType,
   Settings,
+  Snippet,
   Workspace,
   WorkspaceLayout,
 } from '@shared/types'
@@ -83,6 +84,7 @@ export interface AppState {
   previousWorkspaceId: string | null
   sidebarCollapsed: boolean
   presets: AgentPreset[]
+  snippets: Snippet[]
   settings: Settings
   settingsOpen: boolean
   wizardOpen: boolean
@@ -119,6 +121,10 @@ export interface AppState {
   deletePreset: (id: string) => void
   newPresetId: () => string
 
+  saveSnippet: (snippet: Snippet) => void
+  deleteSnippet: (id: string) => void
+  newSnippetId: () => string
+
   updateSettings: (patch: Partial<Settings>) => void
   setSettingsOpen: (open: boolean) => void
   setWizardOpen: (open: boolean) => void
@@ -131,6 +137,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   previousWorkspaceId: null,
   sidebarCollapsed: false,
   presets: DEFAULT_PRESETS,
+  snippets: [],
   settings: DEFAULT_SETTINGS,
   settingsOpen: false,
   wizardOpen: false,
@@ -144,6 +151,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       if (!config) return { hydrated: true }
       const workspaces = config.workspaces ?? []
       const presets = config.presets && config.presets.length ? config.presets : s.presets
+      const snippets = config.snippets ?? []
       const settings: Settings = { ...s.settings, ...config.settings }
       let activeWorkspaceId: string | null = null
       if (settings.restoreLastWorkspace) {
@@ -155,6 +163,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       return {
         workspaces,
         presets,
+        snippets,
         settings,
         sidebarCollapsed: settings.sidebarCollapsed,
         activeWorkspaceId,
@@ -206,6 +215,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({
       workspaces: config.workspaces ?? [],
       presets: config.presets && config.presets.length ? config.presets : s.presets,
+      snippets: config.snippets ?? [],
       settings: { ...s.settings, ...config.settings },
       sidebarCollapsed: config.settings?.sidebarCollapsed ?? s.sidebarCollapsed,
       activeWorkspaceId: config.workspaces?.[0]?.id ?? null,
@@ -229,9 +239,12 @@ export const useAppStore = create<AppState>((set, get) => ({
           : undefined
         return { ...w, id: uid('ws'), panes, layout }
       })
+      const existingSnip = new Set(s.snippets.map((x) => x.id))
+      const newSnippets = (config.snippets ?? []).filter((x) => !existingSnip.has(x.id))
       return {
         workspaces: [...s.workspaces, ...importedWs],
         presets: [...s.presets, ...newPresets],
+        snippets: [...s.snippets, ...newSnippets],
       }
     }),
 
@@ -380,6 +393,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   deletePreset: (id) => set((s) => ({ presets: s.presets.filter((p) => p.id !== id) })),
 
   newPresetId: () => uid('preset'),
+
+  saveSnippet: (snippet) =>
+    set((s) => {
+      const exists = s.snippets.some((x) => x.id === snippet.id)
+      return {
+        snippets: exists
+          ? s.snippets.map((x) => (x.id === snippet.id ? snippet : x))
+          : [...s.snippets, snippet],
+      }
+    }),
+
+  deleteSnippet: (id) => set((s) => ({ snippets: s.snippets.filter((x) => x.id !== id) })),
+
+  newSnippetId: () => uid('snip'),
 
   updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
 

@@ -37,8 +37,15 @@ export const en = {
   'palette.console': 'Console',
   'palette.appearance': 'Appearance',
   'palette.newConsole': 'New console',
+  'palette.snippet': 'Snippet',
   'palette.theme': 'Theme',
   'palette.toggleSidebar': 'Toggle sidebar',
+
+  // Snippets
+  'snippets.hint': 'Saved prompts you can drop into the focused console (Ctrl+K → Snippet).',
+  'snippets.new': 'New snippet',
+  'snippets.name': 'Name',
+  'snippets.text': 'Text',
 
   // Data settings
   'settings.cat.data': 'Data',
@@ -97,6 +104,7 @@ export const en = {
   'settings.cat.terminal': 'Terminal',
   'settings.cat.language': 'Language',
   'settings.cat.agents': 'Models',
+  'settings.cat.snippets': 'Snippets',
   'settings.cat.startup': 'Startup',
   'settings.cat.usage': 'Usage',
   'settings.cat.about': 'About',

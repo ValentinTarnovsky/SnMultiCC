@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Palette, PanelLeft, Plus, Search, Settings } from 'lucide-react'
+import { FileText, Palette, PanelLeft, Plus, Search, Settings } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { insertToConsole } from '@/lib/insertToConsole'
 import { useT } from '@/i18n'
 import { iconFor, type IconComponent } from '@/lib/icons'
 import { THEME_LIST } from '@/themes'
@@ -32,6 +33,7 @@ export function CommandPalette() {
   const setOpen = useAppStore((s) => s.setPaletteOpen)
   const workspaces = useAppStore((s) => s.workspaces)
   const presets = useAppStore((s) => s.presets)
+  const snippets = useAppStore((s) => s.snippets)
   const activeId = useAppStore((s) => s.activeWorkspaceId)
   const setActive = useAppStore((s) => s.setActive)
   const setWizardOpen = useAppStore((s) => s.setWizardOpen)
@@ -63,11 +65,20 @@ export function CommandPalette() {
         })
       }
     }
+    for (const snip of snippets) {
+      cmds.push({
+        id: `snip-${snip.id}`,
+        label: `${t('palette.snippet')}: ${snip.name}`,
+        hint: t('palette.snippet'),
+        icon: FileText,
+        run: () => insertToConsole(snip.text),
+      })
+    }
     for (const th of THEME_LIST) {
       cmds.push({ id: `theme-${th.name}`, label: `${t('palette.theme')}: ${th.label}`, hint: t('palette.appearance'), icon: Palette, run: () => updateSettings({ theme: th.name }) })
     }
     return cmds
-  }, [workspaces, presets, activeId, t, setActive, setWizardOpen, setSettingsOpen, toggleSidebar, addPane, updateSettings])
+  }, [workspaces, presets, snippets, activeId, t, setActive, setWizardOpen, setSettingsOpen, toggleSidebar, addPane, updateSettings])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

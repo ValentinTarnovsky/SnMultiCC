@@ -48,6 +48,13 @@ export interface Workspace {
   layout?: WorkspaceLayout
 }
 
+/** A saved, reusable prompt/text snippet inserted into a console (U10). */
+export interface Snippet {
+  id: string
+  name: string
+  text: string
+}
+
 export interface AgentPreset {
   id: string
   name: string
@@ -151,4 +158,6 @@ export interface ConfigFile {
   presets: AgentPreset[]
   settings: Settings
   activeWorkspaceId?: string | null
+  /** Saved prompt snippets (U10). */
+  snippets?: Snippet[]
 }
