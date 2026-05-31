@@ -55,6 +55,13 @@ const RESIZE_SUPPRESS_MS = 700
 /** Heuristic: the tail looks like a console waiting for the user to answer. */
 const WAITING_RX =
   /(\(y\/n\)|\[y\/n\]|\(yes\/no\)|do you want to proceed|press enter to continue|continue\?|overwrite\?|❯\s*1\.|\b1\.\s*yes\b|\(use arrow keys\))/i
+/**
+ * Heuristic: the tail shows an agent actively working — Claude Code / Codex
+ * render a spinner + "esc to interrupt" while a task runs, even during silent
+ * "thinking" lulls. When present, the console is working regardless of cadence,
+ * which prevents a false "done" when output merely pauses.
+ */
+const BUSY_RX = /(esc to interrupt|[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏⣾⣽⣻⢿⡿⣟⣯⣷✶✻✽✢✳])/i
 
 /**
  * Owns every node-pty instance. The renderer never touches native modules;
@@ -227,7 +234,10 @@ export class PtyManager {
   private trackActivity(ptyId: string, entry: Entry): void {
     const now = Date.now()
     if (now >= entry.suppressUntil) {
-      if (now - entry.lastDataMs >= BURST_GAP_MS) {
+      if (BUSY_RX.test(this.tail(entry))) {
+        // Agent explicitly shows a busy indicator (spinner / "esc to interrupt").
+        this.setState(ptyId, 'working')
+      } else if (now - entry.lastDataMs >= BURST_GAP_MS) {
         // First chunk of a fresh burst — not enough to call it work yet.
         entry.burstStartMs = now
       } else if (now - entry.burstStartMs >= WORK_MIN_MS) {
@@ -239,11 +249,19 @@ export class PtyManager {
     entry.idleTimer = setTimeout(() => this.classifyQuiet(ptyId), IDLE_AFTER_MS)
   }
 
-  /** When output settles, the tail decides: waiting on a prompt, or just idle. */
+  /** When output settles, the tail decides: still busy, waiting, or idle. */
   private classifyQuiet(ptyId: string): void {
     const entry = this.entries.get(ptyId)
     if (!entry) return
-    if (WAITING_RX.test(this.tail(entry))) this.setState(ptyId, 'waiting')
+    const tail = this.tail(entry)
+    if (BUSY_RX.test(tail)) {
+      // Still busy (spinner shown) despite an output lull — stay working and
+      // re-check shortly. Prevents a false "done" while an agent is thinking.
+      this.setState(ptyId, 'working')
+      entry.idleTimer = setTimeout(() => this.classifyQuiet(ptyId), IDLE_AFTER_MS)
+      return
+    }
+    if (WAITING_RX.test(tail)) this.setState(ptyId, 'waiting')
     else this.setState(ptyId, 'idle')
   }
 
