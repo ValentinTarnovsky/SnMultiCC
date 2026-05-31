@@ -23,6 +23,23 @@ export const en = {
   'ctx.rename': 'Rename',
   'ctx.delete': 'Delete',
 
+  // Delete confirmation
+  'confirm.deleteWorkspaceTitle': 'Delete workspace?',
+  'confirm.deleteWorkspaceMsg': 'This closes every console in “{name}”. It can’t be undone.',
+  'confirm.deleteYes': 'Yes, delete',
+  'confirm.deleteNo': 'No, keep it',
+
+  // Command palette
+  'palette.placeholder': 'Type a command or workspace…',
+  'palette.empty': 'No results',
+  'palette.general': 'General',
+  'palette.workspace': 'Workspace',
+  'palette.console': 'Console',
+  'palette.appearance': 'Appearance',
+  'palette.newConsole': 'New console',
+  'palette.theme': 'Theme',
+  'palette.toggleSidebar': 'Toggle sidebar',
+
   // Workspace header
   'workspace.newConsole': 'New console',
   'workspace.noPresets': 'No presets',

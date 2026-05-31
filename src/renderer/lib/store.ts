@@ -79,11 +79,14 @@ export interface WorkspaceDraft {
 export interface AppState {
   workspaces: Workspace[]
   activeWorkspaceId: string | null
+  /** Last active workspace (drives Ctrl+Tab quick-flip). */
+  previousWorkspaceId: string | null
   sidebarCollapsed: boolean
   presets: AgentPreset[]
   settings: Settings
   settingsOpen: boolean
   wizardOpen: boolean
+  paletteOpen: boolean
   /** workspaceId -> maximized paneId (transient; never persisted). */
   maximized: Record<string, string | null>
   /** False until persisted config has been loaded (gates the persistence writer). */
@@ -113,16 +116,19 @@ export interface AppState {
   updateSettings: (patch: Partial<Settings>) => void
   setSettingsOpen: (open: boolean) => void
   setWizardOpen: (open: boolean) => void
+  setPaletteOpen: (open: boolean) => void
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   workspaces: [],
   activeWorkspaceId: null,
+  previousWorkspaceId: null,
   sidebarCollapsed: false,
   presets: DEFAULT_PRESETS,
   settings: DEFAULT_SETTINGS,
   settingsOpen: false,
   wizardOpen: false,
+  paletteOpen: false,
   maximized: {},
   hydrated: false,
 
@@ -215,7 +221,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       workspaces: s.workspaces.map((w) => (w.id === id ? { ...w, favorite: !w.favorite } : w)),
     })),
 
-  setActive: (id) => set({ activeWorkspaceId: id }),
+  setActive: (id) =>
+    set((s) => ({
+      activeWorkspaceId: id,
+      previousWorkspaceId: s.activeWorkspaceId !== id ? s.activeWorkspaceId : s.previousWorkspaceId,
+    })),
 
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 
@@ -333,4 +343,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   setSettingsOpen: (open) => set({ settingsOpen: open }),
 
   setWizardOpen: (open) => set({ wizardOpen: open }),
+
+  setPaletteOpen: (open) => set({ paletteOpen: open }),
 }))

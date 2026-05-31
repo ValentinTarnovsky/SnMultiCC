@@ -25,6 +25,23 @@ export const es: Record<keyof typeof en, string> = {
   'ctx.rename': 'Renombrar',
   'ctx.delete': 'Eliminar',
 
+  // Confirmación de borrado
+  'confirm.deleteWorkspaceTitle': '¿Eliminar workspace?',
+  'confirm.deleteWorkspaceMsg': 'Esto cierra todas las consolas de «{name}». No se puede deshacer.',
+  'confirm.deleteYes': 'Sí, eliminar',
+  'confirm.deleteNo': 'No, conservar',
+
+  // Paleta de comandos
+  'palette.placeholder': 'Escribí un comando o workspace…',
+  'palette.empty': 'Sin resultados',
+  'palette.general': 'General',
+  'palette.workspace': 'Workspace',
+  'palette.console': 'Consola',
+  'palette.appearance': 'Apariencia',
+  'palette.newConsole': 'Nueva consola',
+  'palette.theme': 'Tema',
+  'palette.toggleSidebar': 'Mostrar/ocultar barra lateral',
+
   // Workspace header
   'workspace.newConsole': 'Nueva consola',
   'workspace.noPresets': 'Sin presets',
