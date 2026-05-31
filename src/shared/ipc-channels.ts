@@ -22,6 +22,8 @@ export const CH = {
   // Config (single blob: workspaces + presets + settings + layout)
   CONFIG_LOAD: 'config:load', // invoke -> ConfigFile | null
   CONFIG_SAVE: 'config:save', // send (debounced from the renderer)
+  CONFIG_EXPORT: 'config:export', // invoke (config) -> boolean (saved)
+  CONFIG_IMPORT: 'config:import', // invoke -> ConfigFile | null
 
   // Dialogs
   DIALOG_OPEN_DIR: 'dialog:openDirectory',

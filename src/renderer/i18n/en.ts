@@ -21,6 +21,7 @@ export const en = {
   'ctx.favorite': 'Favorite',
   'ctx.unfavorite': 'Unfavorite',
   'ctx.rename': 'Rename',
+  'ctx.saveTemplate': 'Save as template',
   'ctx.delete': 'Delete',
 
   // Delete confirmation
@@ -37,8 +38,27 @@ export const en = {
   'palette.console': 'Console',
   'palette.appearance': 'Appearance',
   'palette.newConsole': 'New console',
+  'palette.fromTemplate': 'New from template',
   'palette.theme': 'Theme',
   'palette.toggleSidebar': 'Toggle sidebar',
+
+  // Data / templates settings
+  'settings.cat.data': 'Data',
+  'data.backup': 'Backup',
+  'data.exportHint': 'Save all workspaces, presets, templates and settings to a file.',
+  'data.export': 'Export config',
+  'data.import': 'Import config',
+  'data.exported': 'Exported.',
+  'data.imported': 'Imported (replaced).',
+  'data.merged': 'Imported (merged).',
+  'data.importChoose': 'How should the imported config be applied?',
+  'data.replace': 'Replace',
+  'data.merge': 'Merge',
+  'data.templates': 'Templates',
+  'data.templatesHint': 'Reusable workspace blueprints. “Use” creates a new workspace in a folder you pick.',
+  'data.noTemplates': 'No templates yet. Right-click a workspace → “Save as template”.',
+  'data.useTemplate': 'Use (new workspace)',
+  'data.consoles': '{n} consoles',
 
   // Workspace header
   'workspace.newConsole': 'New console',

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Palette, PanelLeft, Plus, Search, Settings } from 'lucide-react'
+import { Layers, Palette, PanelLeft, Plus, Search, Settings } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { useT } from '@/i18n'
 import { iconFor, type IconComponent } from '@/lib/icons'
@@ -32,6 +32,7 @@ export function CommandPalette() {
   const setOpen = useAppStore((s) => s.setPaletteOpen)
   const workspaces = useAppStore((s) => s.workspaces)
   const presets = useAppStore((s) => s.presets)
+  const templates = useAppStore((s) => s.templates)
   const activeId = useAppStore((s) => s.activeWorkspaceId)
   const setActive = useAppStore((s) => s.setActive)
   const setWizardOpen = useAppStore((s) => s.setWizardOpen)
@@ -39,6 +40,7 @@ export function CommandPalette() {
   const toggleSidebar = useAppStore((s) => s.toggleSidebar)
   const addPane = useAppStore((s) => s.addPane)
   const updateSettings = useAppStore((s) => s.updateSettings)
+  const createFromTemplate = useAppStore((s) => s.createFromTemplate)
 
   const [query, setQuery] = useState('')
   const [idx, setIdx] = useState(0)
@@ -63,11 +65,24 @@ export function CommandPalette() {
         })
       }
     }
+    for (const tpl of templates) {
+      cmds.push({
+        id: `tmpl-${tpl.id}`,
+        label: `${t('palette.fromTemplate')}: ${tpl.name}`,
+        hint: t('palette.workspace'),
+        icon: Layers,
+        run: () => {
+          void window.snApi.dialog.openDirectory().then((dir) => {
+            if (dir) createFromTemplate(tpl.id, dir)
+          })
+        },
+      })
+    }
     for (const th of THEME_LIST) {
       cmds.push({ id: `theme-${th.name}`, label: `${t('palette.theme')}: ${th.label}`, hint: t('palette.appearance'), icon: Palette, run: () => updateSettings({ theme: th.name }) })
     }
     return cmds
-  }, [workspaces, presets, activeId, t, setActive, setWizardOpen, setSettingsOpen, toggleSidebar, addPane, updateSettings])
+  }, [workspaces, presets, templates, activeId, t, setActive, setWizardOpen, setSettingsOpen, toggleSidebar, addPane, updateSettings, createFromTemplate])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

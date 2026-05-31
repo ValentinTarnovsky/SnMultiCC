@@ -51,6 +51,8 @@ const api: SnApi = {
   config: {
     load: () => ipcRenderer.invoke(CH.CONFIG_LOAD) as Promise<ConfigFile | null>,
     save: (config: ConfigFile) => ipcRenderer.send(CH.CONFIG_SAVE, config),
+    export: (config: ConfigFile) => ipcRenderer.invoke(CH.CONFIG_EXPORT, config) as Promise<boolean>,
+    import: () => ipcRenderer.invoke(CH.CONFIG_IMPORT) as Promise<ConfigFile | null>,
   },
   window: {
     minimize: () => ipcRenderer.send(CH.WINDOW_MINIMIZE),

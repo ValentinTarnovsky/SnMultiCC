@@ -111,6 +111,10 @@ export interface SnApi {
     load(): Promise<ConfigFile | null>
     /** Persists the full config blob (fire-and-forget; debounced by caller). */
     save(config: ConfigFile): void
+    /** Save the config to a user-chosen file; resolves true if written. */
+    export(config: ConfigFile): Promise<boolean>
+    /** Pick + parse a config file; resolves null if cancelled/invalid. */
+    import(): Promise<ConfigFile | null>
   }
   /** Custom title bar window controls (frame: false). */
   window: {

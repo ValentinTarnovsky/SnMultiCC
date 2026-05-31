@@ -72,12 +72,29 @@ const settingsSchema = z.object({
   sidebarCollapsed: z.boolean(),
 })
 
+const templateSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  grid: z.number(),
+  panes: z.array(
+    z.object({
+      type: paneType,
+      presetId: z.string().optional(),
+      title: z.string(),
+      color: z.string(),
+      icon: z.string(),
+      command: z.string().optional(),
+    }),
+  ),
+})
+
 const configSchema = z.object({
   version: z.number(),
   workspaces: z.array(workspaceSchema),
   presets: z.array(presetSchema),
   settings: settingsSchema,
   activeWorkspaceId: z.string().nullable().optional(),
+  templates: z.array(templateSchema).optional().catch(undefined),
 })
 
 /** Validates a raw parsed object into a ConfigFile, or null if invalid. */

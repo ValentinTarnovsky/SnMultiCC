@@ -8,7 +8,13 @@ function toConfig(state: AppState): ConfigFile {
     presets: state.presets,
     settings: { ...state.settings, sidebarCollapsed: state.sidebarCollapsed },
     activeWorkspaceId: state.activeWorkspaceId,
+    templates: state.templates,
   }
+}
+
+/** A snapshot of the current config (for export). */
+export function snapshotConfig(): ConfigFile {
+  return toConfig(useAppStore.getState())
 }
 
 /**

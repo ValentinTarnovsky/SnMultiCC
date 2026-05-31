@@ -1,5 +1,5 @@
 import { useMemo, useState, type ComponentType } from 'react'
-import { Activity, Bot, Info, Languages, Palette, Power, Search, TerminalSquare, type LucideIcon } from 'lucide-react'
+import { Activity, Bot, Database, Info, Languages, Palette, Power, Search, TerminalSquare, type LucideIcon } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { useT, type MessageKey, type TFn } from '@/i18n'
 import { Modal } from '@/components/common/Modal'
@@ -9,10 +9,19 @@ import { TerminalSection } from './sections/TerminalSection'
 import { LanguageSection } from './sections/LanguageSection'
 import { AgentsSection } from './sections/AgentsSection'
 import { StartupSection } from './sections/StartupSection'
+import { DataSection } from './sections/DataSection'
 import { UsageSection } from './sections/UsageSection'
 import { AboutSection } from './sections/AboutSection'
 
-type CategoryId = 'appearance' | 'terminal' | 'language' | 'agents' | 'startup' | 'usage' | 'about'
+type CategoryId =
+  | 'appearance'
+  | 'terminal'
+  | 'language'
+  | 'agents'
+  | 'startup'
+  | 'data'
+  | 'usage'
+  | 'about'
 
 interface Category {
   id: CategoryId
@@ -26,6 +35,7 @@ const CATEGORIES: Category[] = [
   { id: 'terminal', labelKey: 'settings.cat.terminal', icon: TerminalSquare, keywords: ['shell', 'font', 'fuente', 'scrollback', 'powershell'] },
   { id: 'agents', labelKey: 'settings.cat.agents', icon: Bot, keywords: ['preset', 'model', 'modelo', 'agent', 'agente', 'claude', 'codex'] },
   { id: 'startup', labelKey: 'settings.cat.startup', icon: Power, keywords: ['startup', 'inicio', 'tray', 'bandeja', 'launch', 'close', 'cerrar', 'shortcut', 'atajo', 'hotkey'] },
+  { id: 'data', labelKey: 'settings.cat.data', icon: Database, keywords: ['data', 'datos', 'export', 'exportar', 'import', 'importar', 'backup', 'respaldo', 'template', 'plantilla'] },
   { id: 'appearance', labelKey: 'settings.cat.appearance', icon: Palette, keywords: ['theme', 'color', 'tema', 'apariencia', 'custom'] },
   { id: 'language', labelKey: 'settings.cat.language', icon: Languages, keywords: ['language', 'idioma', 'english', 'español', 'spanish'] },
   { id: 'usage', labelKey: 'settings.cat.usage', icon: Activity, keywords: ['usage', 'uso', 'ram', 'cpu', 'memory', 'memoria', 'performance', 'rendimiento'] },
@@ -44,6 +54,7 @@ const SECTIONS: Record<CategoryId, ComponentType> = {
   language: LanguageSection,
   agents: AgentsSection,
   startup: StartupSection,
+  data: DataSection,
   usage: UsageSection,
   about: AboutSection,
 }
