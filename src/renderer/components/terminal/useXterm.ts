@@ -9,7 +9,7 @@ import '@xterm/xterm/css/xterm.css'
 import { useAppStore } from '@/lib/store'
 import { buildXtermTheme } from '@/themes'
 import { registerPty, unregisterPty } from '@/lib/ptyRegistry'
-import { setFocusedPane } from '@/lib/focus'
+import { registerFocuser, setFocusedPane, unregisterFocuser } from '@/lib/focus'
 
 /** Line cap used to emulate "infinite" scrollback (like a normal terminal). */
 const INFINITE_SCROLLBACK = 100000
@@ -148,6 +148,7 @@ export function useXterm(
     }
     controllerRef.current.clearSearch = () => search.clearDecorations()
     controllerRef.current.focus = () => term.focus()
+    registerFocuser(opts.paneId, () => term.focus())
 
     // Terminal copy/paste via the Electron clipboard. Ctrl+C copies the
     // selection (else falls through to ^C / interrupt); Ctrl+V pastes;
@@ -275,6 +276,7 @@ export function useXterm(
       const id = ptyIdRef.current
       if (id) void window.snApi.pty.kill(id)
       unregisterPty(opts.paneId)
+      unregisterFocuser(opts.paneId)
       ptyIdRef.current = null
       termRef.current = null
       fitRef.current = null
