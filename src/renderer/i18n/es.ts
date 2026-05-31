@@ -23,7 +23,6 @@ export const es: Record<keyof typeof en, string> = {
   'ctx.favorite': 'Destacar',
   'ctx.unfavorite': 'Quitar destacado',
   'ctx.rename': 'Renombrar',
-  'ctx.saveTemplate': 'Guardar como plantilla',
   'ctx.delete': 'Eliminar',
 
   // Confirmación de borrado
@@ -40,14 +39,13 @@ export const es: Record<keyof typeof en, string> = {
   'palette.console': 'Consola',
   'palette.appearance': 'Apariencia',
   'palette.newConsole': 'Nueva consola',
-  'palette.fromTemplate': 'Nuevo desde plantilla',
   'palette.theme': 'Tema',
   'palette.toggleSidebar': 'Mostrar/ocultar barra lateral',
 
-  // Datos / plantillas
+  // Datos
   'settings.cat.data': 'Datos',
   'data.backup': 'Respaldo',
-  'data.exportHint': 'Guardá todos los workspaces, presets, plantillas y ajustes en un archivo.',
+  'data.exportHint': 'Guardá todos los workspaces, presets y ajustes en un archivo.',
   'data.export': 'Exportar configuración',
   'data.import': 'Importar configuración',
   'data.exported': 'Exportado.',
@@ -56,11 +54,6 @@ export const es: Record<keyof typeof en, string> = {
   'data.importChoose': '¿Cómo aplicar la configuración importada?',
   'data.replace': 'Reemplazar',
   'data.merge': 'Combinar',
-  'data.templates': 'Plantillas',
-  'data.templatesHint': 'Blueprints de workspace reutilizables. «Usar» crea un workspace nuevo en la carpeta que elijas.',
-  'data.noTemplates': 'Sin plantillas. Click derecho en un workspace → «Guardar como plantilla».',
-  'data.useTemplate': 'Usar (nuevo workspace)',
-  'data.consoles': '{n} consolas',
 
   // Workspace header
   'workspace.newConsole': 'Nueva consola',

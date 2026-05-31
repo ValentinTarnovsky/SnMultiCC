@@ -48,21 +48,6 @@ export interface Workspace {
   layout?: WorkspaceLayout
 }
 
-/** A reusable workspace blueprint (grid + console definitions, no cwd/ids). */
-export interface WorkspaceTemplate {
-  id: string
-  name: string
-  grid: GridPreset
-  panes: Array<{
-    type: PaneType
-    presetId?: string
-    title: string
-    color: string
-    icon: string
-    command?: string
-  }>
-}
-
 export interface AgentPreset {
   id: string
   name: string
@@ -166,6 +151,4 @@ export interface ConfigFile {
   presets: AgentPreset[]
   settings: Settings
   activeWorkspaceId?: string | null
-  /** Reusable workspace blueprints (U14). */
-  templates?: WorkspaceTemplate[]
 }

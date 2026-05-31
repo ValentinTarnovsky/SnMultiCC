@@ -2,7 +2,6 @@ import { useState } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
-  Layers,
   MoreVertical,
   Pencil,
   Plus,
@@ -38,7 +37,6 @@ export function Sidebar() {
     toggleSidebar,
     setSettingsOpen,
     setWizardOpen,
-    saveTemplate,
   } = useAppStore()
 
   const [menu, setMenu] = useState<MenuState | null>(null)
@@ -75,7 +73,6 @@ export function Sidebar() {
         onClick: () => toggleFavorite(wsId),
       },
       { label: t('ctx.rename'), icon: Pencil, onClick: () => startRename(wsId) },
-      { label: t('ctx.saveTemplate'), icon: Layers, onClick: () => saveTemplate(wsId) },
       {
         label: t('ctx.delete'),
         icon: Trash2,

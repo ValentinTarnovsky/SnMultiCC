@@ -8,9 +8,8 @@ import type {
   Settings,
   Workspace,
   WorkspaceLayout,
-  WorkspaceTemplate,
 } from '@shared/types'
-import { gridForCount, orderPanes } from '@/components/layout/gridTemplates'
+import { gridForCount } from '@/components/layout/gridTemplates'
 import { killPanePtys } from '@/lib/ptyRegistry'
 
 const ACCENTS = ['#6366f1', '#8b5cf6', '#60a5fa']
@@ -84,7 +83,6 @@ export interface AppState {
   previousWorkspaceId: string | null
   sidebarCollapsed: boolean
   presets: AgentPreset[]
-  templates: WorkspaceTemplate[]
   settings: Settings
   settingsOpen: boolean
   wizardOpen: boolean
@@ -99,9 +97,6 @@ export interface AppState {
   hydrate: (config: ConfigFile | null) => void
   createWorkspace: (name: string, cwd: string) => string
   createWorkspaceFull: (draft: WorkspaceDraft) => string
-  createFromTemplate: (templateId: string, cwd: string) => string
-  saveTemplate: (workspaceId: string) => void
-  deleteTemplate: (id: string) => void
   importConfig: (config: ConfigFile) => void
   mergeConfig: (config: ConfigFile) => void
   deleteWorkspace: (id: string) => void
@@ -136,7 +131,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   previousWorkspaceId: null,
   sidebarCollapsed: false,
   presets: DEFAULT_PRESETS,
-  templates: [],
   settings: DEFAULT_SETTINGS,
   settingsOpen: false,
   wizardOpen: false,
@@ -150,7 +144,6 @@ export const useAppStore = create<AppState>((set, get) => ({
       if (!config) return { hydrated: true }
       const workspaces = config.workspaces ?? []
       const presets = config.presets && config.presets.length ? config.presets : s.presets
-      const templates = config.templates ?? []
       const settings: Settings = { ...s.settings, ...config.settings }
       let activeWorkspaceId: string | null = null
       if (settings.restoreLastWorkspace) {
@@ -162,7 +155,6 @@ export const useAppStore = create<AppState>((set, get) => ({
       return {
         workspaces,
         presets,
-        templates,
         settings,
         sidebarCollapsed: settings.sidebarCollapsed,
         activeWorkspaceId,
@@ -210,53 +202,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     return ws.id
   },
 
-  createFromTemplate: (templateId, cwd) => {
-    const tmpl = get().templates.find((t) => t.id === templateId)
-    if (!tmpl) return ''
-    return get().createWorkspaceFull({
-      name: tmpl.name,
-      cwd,
-      grid: tmpl.grid,
-      panes: tmpl.panes.map((p) => ({
-        type: p.type,
-        presetId: p.presetId,
-        title: p.title,
-        color: p.color,
-        icon: p.icon,
-        command: p.command,
-      })),
-    })
-  },
-
-  saveTemplate: (workspaceId) =>
-    set((s) => {
-      const w = s.workspaces.find((x) => x.id === workspaceId)
-      if (!w) return {}
-      const grid = w.layout?.grid ?? gridForCount(w.panes.length)
-      const ordered = orderPanes(w.panes, w.layout?.order)
-      const tmpl: WorkspaceTemplate = {
-        id: uid('tmpl'),
-        name: w.name,
-        grid,
-        panes: ordered.map((p) => ({
-          type: p.type,
-          presetId: p.presetId,
-          title: p.title,
-          color: p.color,
-          icon: p.icon,
-          command: p.command,
-        })),
-      }
-      return { templates: [...s.templates, tmpl] }
-    }),
-
-  deleteTemplate: (id) => set((s) => ({ templates: s.templates.filter((t) => t.id !== id) })),
-
   importConfig: (config) =>
     set((s) => ({
       workspaces: config.workspaces ?? [],
       presets: config.presets && config.presets.length ? config.presets : s.presets,
-      templates: config.templates ?? [],
       settings: { ...s.settings, ...config.settings },
       sidebarCollapsed: config.settings?.sidebarCollapsed ?? s.sidebarCollapsed,
       activeWorkspaceId: config.workspaces?.[0]?.id ?? null,
@@ -280,12 +229,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           : undefined
         return { ...w, id: uid('ws'), panes, layout }
       })
-      const existingTmpl = new Set(s.templates.map((t) => t.id))
-      const newTmpl = (config.templates ?? []).filter((t) => !existingTmpl.has(t.id))
       return {
         workspaces: [...s.workspaces, ...importedWs],
         presets: [...s.presets, ...newPresets],
-        templates: [...s.templates, ...newTmpl],
       }
     }),
 

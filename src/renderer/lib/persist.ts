@@ -8,7 +8,6 @@ function toConfig(state: AppState): ConfigFile {
     presets: state.presets,
     settings: { ...state.settings, sidebarCollapsed: state.sidebarCollapsed },
     activeWorkspaceId: state.activeWorkspaceId,
-    templates: state.templates,
   }
 }
 

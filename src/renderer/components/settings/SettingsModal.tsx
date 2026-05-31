@@ -35,7 +35,7 @@ const CATEGORIES: Category[] = [
   { id: 'terminal', labelKey: 'settings.cat.terminal', icon: TerminalSquare, keywords: ['shell', 'font', 'fuente', 'scrollback', 'powershell'] },
   { id: 'agents', labelKey: 'settings.cat.agents', icon: Bot, keywords: ['preset', 'model', 'modelo', 'agent', 'agente', 'claude', 'codex'] },
   { id: 'startup', labelKey: 'settings.cat.startup', icon: Power, keywords: ['startup', 'inicio', 'tray', 'bandeja', 'launch', 'close', 'cerrar', 'shortcut', 'atajo', 'hotkey'] },
-  { id: 'data', labelKey: 'settings.cat.data', icon: Database, keywords: ['data', 'datos', 'export', 'exportar', 'import', 'importar', 'backup', 'respaldo', 'template', 'plantilla'] },
+  { id: 'data', labelKey: 'settings.cat.data', icon: Database, keywords: ['data', 'datos', 'export', 'exportar', 'import', 'importar', 'backup', 'respaldo'] },
   { id: 'appearance', labelKey: 'settings.cat.appearance', icon: Palette, keywords: ['theme', 'color', 'tema', 'apariencia', 'custom'] },
   { id: 'language', labelKey: 'settings.cat.language', icon: Languages, keywords: ['language', 'idioma', 'english', 'español', 'spanish'] },
   { id: 'usage', labelKey: 'settings.cat.usage', icon: Activity, keywords: ['usage', 'uso', 'ram', 'cpu', 'memory', 'memoria', 'performance', 'rendimiento'] },
