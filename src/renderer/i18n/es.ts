@@ -51,7 +51,7 @@ export const es: Record<keyof typeof en, string> = {
 
   // Perfiles de conexión (secuencias previas al modelo, ej. SSH)
   'connections.hint':
-    'Secuencias que corren en cada consola antes del modelo — por ejemplo conectarse por SSH y loguearse. Elegí una al crear un workspace.',
+    'Secuencias que corren en cada consola antes del modelo, por ejemplo conectarse por SSH y loguearse. Elegí una al crear un workspace.',
   'connections.new': 'Nueva conexión',
   'connections.name': 'Nombre',
   'connections.namePlaceholder': 'ej. Servidor dedi (SSH)',
@@ -74,7 +74,7 @@ export const es: Record<keyof typeof en, string> = {
   'connections.moveUp': 'Subir',
   'connections.moveDown': 'Bajar',
   'connections.secretWarning':
-    'Los pasos corren de arriba hacia abajo: cada uno espera su texto (o su timeout) antes de enviar. Las contraseñas se guardan en tu archivo de configuración local en texto plano — igual que el resto de tus ajustes.',
+    'Los pasos corren de arriba hacia abajo: cada uno espera su texto (o su timeout) antes de enviar. Las contraseñas se guardan en tu archivo de configuración local en texto plano, igual que el resto de tus ajustes.',
 
   // Atajos de teclado
   'keys.hint':
@@ -183,11 +183,11 @@ export const es: Record<keyof typeof en, string> = {
   'settings.launchOnStartup': 'Iniciar con el sistema',
   'settings.installedOnly': 'Disponible solo en la versión instalada.',
   'settings.globalHotkey': 'Atajo global',
-  'settings.globalHotkeyHint': 'Traé la app al frente desde cualquier lado — aunque esté minimizada o en la bandeja.',
+  'settings.globalHotkeyHint': 'Traé la app al frente desde cualquier lado, aunque esté minimizada o en la bandeja.',
   'settings.hotkeyRecord': 'Presioná las teclas…',
   'settings.hotkeySet': 'Click para configurar un atajo',
   'settings.hotkeyClear': 'Borrar',
-  'settings.hotkeyFailed': 'No se pudo registrar esa combinación — quizás la usa otra app.',
+  'settings.hotkeyFailed': 'No se pudo registrar esa combinación, quizás la usa otra app.',
   'settings.newPreset': 'Nuevo modelo',
   'settings.edit': 'Editar',
   'settings.about.version': 'Versión',

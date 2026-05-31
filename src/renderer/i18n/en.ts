@@ -49,7 +49,7 @@ export const en = {
 
   // Connection profiles (pre-launch sequences, e.g. SSH)
   'connections.hint':
-    'Sequences that run in every console before the model — e.g. connect over SSH and log in. Pick one when you create a workspace.',
+    'Sequences that run in every console before the model, e.g. connect over SSH and log in. Pick one when you create a workspace.',
   'connections.new': 'New connection',
   'connections.name': 'Name',
   'connections.namePlaceholder': 'e.g. Dedi server (SSH)',
@@ -72,7 +72,7 @@ export const en = {
   'connections.moveUp': 'Move up',
   'connections.moveDown': 'Move down',
   'connections.secretWarning':
-    'Steps run top to bottom: each waits for its text (or its timeout) before sending. Secrets are stored in your local config file in plain text — same as the rest of your settings.',
+    'Steps run top to bottom: each waits for its text (or its timeout) before sending. Secrets are stored in your local config file in plain text, same as the rest of your settings.',
 
   // Keyboard shortcuts
   'keys.hint':
@@ -181,11 +181,11 @@ export const en = {
   'settings.launchOnStartup': 'Launch on system startup',
   'settings.installedOnly': 'Available in the installed build only.',
   'settings.globalHotkey': 'Global shortcut',
-  'settings.globalHotkeyHint': 'Bring the app to the front from anywhere — even minimized or in the tray.',
+  'settings.globalHotkeyHint': 'Bring the app to the front from anywhere, even minimized or in the tray.',
   'settings.hotkeyRecord': 'Press keys…',
   'settings.hotkeySet': 'Click to set a shortcut',
   'settings.hotkeyClear': 'Clear',
-  'settings.hotkeyFailed': "Couldn't register that combo — it may be taken by another app.",
+  'settings.hotkeyFailed': "Couldn't register that combo, it may be taken by another app.",
   'settings.newPreset': 'New model',
   'settings.edit': 'Edit',
   'settings.about.version': 'Version',

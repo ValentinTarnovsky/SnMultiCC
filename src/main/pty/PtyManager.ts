@@ -33,7 +33,7 @@ interface Entry {
 
 /** Output is coalesced and flushed at ~120Hz for the visible workspace. */
 const FLUSH_MS = 8
-/** Hidden workspaces flush far slower — their xterms can't paint anyway. */
+/** Hidden workspaces flush far slower, their xterms can't paint anyway. */
 const HIDDEN_FLUSH_MS = 250
 /** Cap on a single IPC payload (split larger bursts across frames). */
 const MAX_CHUNK = 256 * 1024
@@ -58,7 +58,7 @@ function buildMatcher(pattern: string): (text: string) => boolean {
       const rx = new RegExp(re[1], re[2])
       return (text) => rx.test(text)
     } catch {
-      /* malformed regex — fall through to substring */
+      /* malformed regex, fall through to substring */
     }
   }
   const needle = pattern.toLowerCase()
@@ -121,7 +121,7 @@ export class PtyManager {
       // Drive the expect/send sequence (e.g. SSH login), then type the model.
       void this.runSetup(entry, req.setup, initial)
     } else if (initial) {
-      // No setup: original behavior — type the model command once the shell has
+      // No setup: original behavior, type the model command once the shell has
       // settled. A bare CR is exactly what pressing Enter sends; CRLF makes
       // PowerShell emit a spurious ">>" continuation.
       entry.setupTimer = setTimeout(() => {
@@ -230,7 +230,7 @@ export class PtyManager {
   /**
    * Runs an expect/send sequence on a freshly spawned pty, then types the model
    * command. Each step optionally waits for the terminal to print `waitFor`
-   * (with a timeout fallback) before sending its text — so an interactive
+   * (with a timeout fallback) before sending its text, so an interactive
    * prompt like "password:" is answered automatically. Lives in main so it
    * survives renderer remounts and reads the same byte stream as the terminal.
    */

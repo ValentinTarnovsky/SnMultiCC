@@ -13,7 +13,7 @@ export type PaneType = 'shell' | 'claude' | 'codex' | 'custom'
 
 /**
  * One step of a pre-launch sequence (expect/send). The runner sends `send`,
- * optionally waiting for the terminal to print `waitFor` first — this is how a
+ * optionally waiting for the terminal to print `waitFor` first, this is how a
  * console can auto-answer an interactive prompt (e.g. send a password right
  * after the shell prints "password:").
  */

@@ -42,7 +42,7 @@ export interface PtySpawnReq {
   /**
    * Pre-launch sequence (e.g. SSH connect) run before `initialCommand`. The
    * main process drives it: each step optionally waits for the terminal to
-   * print `waitFor`, then writes its text — so an interactive prompt like a
+   * print `waitFor`, then writes its text, so an interactive prompt like a
    * password can be answered automatically.
    */
   setup?: SetupStep[]

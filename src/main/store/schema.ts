@@ -39,7 +39,7 @@ const layoutSchema = z
     order: z.array(z.string()),
   })
   .optional()
-  // Old v1 configs stored an opaque dockview blob here — tolerate & drop it.
+  // Old v1 configs stored an opaque dockview blob here, tolerate & drop it.
   .catch(undefined)
 
 const workspaceSchema = z.object({

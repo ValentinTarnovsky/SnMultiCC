@@ -27,11 +27,11 @@ const SEARCH_OPTS = {
 
 /**
  * Browsers cap live WebGL contexts (~16 in Chromium). Past that, Chromium
- * EVICTS the oldest context — so an already-running terminal loses its GPU
+ * EVICTS the oldest context, so an already-running terminal loses its GPU
  * context and (previously) silently fell to the slow DOM renderer, which
  * garbles and duplicates lines while an AI CLI is redrawing. We avoid that two
  * ways: (a) cap how many panes use WebGL so eviction never triggers, and (b) on
- * a context loss fall back to the 2D Canvas renderer — never the DOM renderer.
+ * a context loss fall back to the 2D Canvas renderer, never the DOM renderer.
  * Returns a release fn that frees the WebGL slot on teardown.
  */
 let webglContexts = 0
@@ -64,7 +64,7 @@ function loadRenderer(term: Terminal): () => void {
       term.loadAddon(webgl)
       return release
     } catch {
-      /* WebGL2 unsupported — fall through to Canvas */
+      /* WebGL2 unsupported, fall through to Canvas */
     }
   }
   try {
@@ -105,7 +105,7 @@ export interface UseXtermOptions {
 /**
  * Mounts an xterm Terminal into `containerRef`, spawns a backing pty, and wires
  * the bidirectional data + resize streams. The pty is killed only on real
- * teardown (pane/workspace removal) — NOT on theme/font/visibility changes —
+ * teardown (pane/workspace removal), NOT on theme/font/visibility changes,
  * so running sessions survive workspace switches.
  */
 export function useXterm(
@@ -171,7 +171,7 @@ export function useXterm(
     let lastCols = -1
     let lastRows = -1
     // Fit only when the container is actually measurable. A display:none or
-    // mid-relayout box yields a bogus tiny geometry — that is the "everything
+    // mid-relayout box yields a bogus tiny geometry, that is the "everything
     // crammed into a narrow column / text floating to one side" bug. We also
     // tell the pty only when cols/rows truly change, so an AI CLI redrawing
     // isn't interrupted by a stream of no-op SIGWINCH resizes.
@@ -252,7 +252,7 @@ export function useXterm(
     let offExit: () => void = () => undefined
 
     // Backpressure: throttle a chatty *visible* pty when xterm can't drain.
-    // Hidden panes are NEVER paused — background agents must keep running, and a
+    // Hidden panes are NEVER paused, background agents must keep running, and a
     // display:none xterm may not fire write callbacks, which would otherwise
     // stall the pty (freezing its activity state). See the reveal effect below.
     const HIGH_WATER = 1_000_000
@@ -331,7 +331,7 @@ export function useXterm(
     })
     resizeObserver.observe(container)
     // Framer-motion finishes its layout animation via a CSS transform, which
-    // does NOT fire the ResizeObserver — so re-fit once the box has settled.
+    // does NOT fire the ResizeObserver, so re-fit once the box has settled.
     const mountRaf = requestAnimationFrame(() => requestAnimationFrame(safeFit))
 
     return () => {
@@ -368,13 +368,13 @@ export function useXterm(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef, opts.paneId])
 
-  // Live theme updates — swap the palette in place.
+  // Live theme updates, swap the palette in place.
   useEffect(() => {
     const term = termRef.current
     if (term) term.options.theme = buildXtermTheme(theme, customColors)
   }, [theme, customColors])
 
-  // Live font-size updates — per-pane override wins over the global size.
+  // Live font-size updates, per-pane override wins over the global size.
   useEffect(() => {
     const term = termRef.current
     if (!term) return
