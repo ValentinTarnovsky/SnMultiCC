@@ -57,6 +57,7 @@ const DEFAULT_SETTINGS: Settings = {
   launchOnStartup: false,
   globalHotkeyEnabled: false,
   globalHotkey: 'Super+Alt+O',
+  keymap: {},
   sidebarCollapsed: false,
 }
 

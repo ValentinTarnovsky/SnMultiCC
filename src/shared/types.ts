@@ -149,6 +149,8 @@ export interface Settings {
   globalHotkeyEnabled: boolean
   /** Electron accelerator string, e.g. "Super+Alt+O". */
   globalHotkey: string
+  /** Remapped in-app shortcuts: actionId -> accelerator (overrides defaults). */
+  keymap: Record<string, string>
   sidebarCollapsed: boolean
 }
 

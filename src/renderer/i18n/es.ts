@@ -49,6 +49,21 @@ export const es: Record<keyof typeof en, string> = {
   'snippets.name': 'Nombre',
   'snippets.text': 'Texto',
 
+  // Atajos de teclado
+  'keys.hint':
+    'Clic en un atajo y presioná las teclas nuevas (Esc para cancelar). Copy/paste, zoom y búsqueda de la terminal quedan fijos.',
+  'keys.recording': 'Presioná las teclas…',
+  'keys.conflict': 'conflicto',
+  'keys.reset': 'Restablecer',
+  'keys.palette': 'Abrir paleta de comandos',
+  'keys.workspaceFlip': 'Saltar al último workspace',
+  'keys.workspaceNext': 'Workspace siguiente',
+  'keys.workspacePrev': 'Workspace anterior',
+  'keys.newWorkspace': 'Nuevo workspace',
+  'keys.newConsole': 'Nueva consola (workspace activo)',
+  'keys.openSettings': 'Abrir ajustes',
+  'keys.toggleSidebar': 'Mostrar/ocultar barra lateral',
+
   // Datos
   'settings.cat.data': 'Datos',
   'data.backup': 'Respaldo',
@@ -108,6 +123,7 @@ export const es: Record<keyof typeof en, string> = {
   'settings.cat.agents': 'Modelos',
   'settings.cat.snippets': 'Snippets',
   'settings.cat.startup': 'Inicio',
+  'settings.cat.keys': 'Teclado',
   'settings.cat.usage': 'Uso',
   'settings.cat.about': 'Acerca de',
   'usage.hint': 'Uso de recursos de SnMultiCC en tu PC, en tiempo real.',

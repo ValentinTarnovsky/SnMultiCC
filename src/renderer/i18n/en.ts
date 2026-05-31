@@ -47,6 +47,21 @@ export const en = {
   'snippets.name': 'Name',
   'snippets.text': 'Text',
 
+  // Keyboard shortcuts
+  'keys.hint':
+    'Click a shortcut and press the new keys (Esc to cancel). Terminal copy/paste, font zoom and find stay fixed.',
+  'keys.recording': 'Press keys…',
+  'keys.conflict': 'conflict',
+  'keys.reset': 'Reset to default',
+  'keys.palette': 'Open command palette',
+  'keys.workspaceFlip': 'Flip to last workspace',
+  'keys.workspaceNext': 'Next workspace',
+  'keys.workspacePrev': 'Previous workspace',
+  'keys.newWorkspace': 'New workspace',
+  'keys.newConsole': 'New console (active workspace)',
+  'keys.openSettings': 'Open settings',
+  'keys.toggleSidebar': 'Toggle sidebar',
+
   // Data settings
   'settings.cat.data': 'Data',
   'data.backup': 'Backup',
@@ -106,6 +121,7 @@ export const en = {
   'settings.cat.agents': 'Models',
   'settings.cat.snippets': 'Snippets',
   'settings.cat.startup': 'Startup',
+  'settings.cat.keys': 'Keyboard',
   'settings.cat.usage': 'Usage',
   'settings.cat.about': 'About',
   'usage.hint': 'Live resource usage of SnMultiCC on your PC.',

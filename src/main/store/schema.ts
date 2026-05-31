@@ -69,6 +69,7 @@ const settingsSchema = z.object({
   launchOnStartup: z.boolean().default(false),
   globalHotkeyEnabled: z.boolean().default(false),
   globalHotkey: z.string().default('Super+Alt+O'),
+  keymap: z.record(z.string()).default({}),
   sidebarCollapsed: z.boolean(),
 })
 

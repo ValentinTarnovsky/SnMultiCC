@@ -1,5 +1,5 @@
 import { useMemo, useState, type ComponentType } from 'react'
-import { Activity, Bot, Database, FileText, Info, Languages, Palette, Power, Search, TerminalSquare, type LucideIcon } from 'lucide-react'
+import { Activity, Bot, Database, FileText, Info, Keyboard, Languages, Palette, Power, Search, TerminalSquare, type LucideIcon } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { useT, type MessageKey, type TFn } from '@/i18n'
 import { Modal } from '@/components/common/Modal'
@@ -10,6 +10,7 @@ import { LanguageSection } from './sections/LanguageSection'
 import { AgentsSection } from './sections/AgentsSection'
 import { StartupSection } from './sections/StartupSection'
 import { SnippetsSection } from './sections/SnippetsSection'
+import { KeymapSection } from './sections/KeymapSection'
 import { DataSection } from './sections/DataSection'
 import { UsageSection } from './sections/UsageSection'
 import { AboutSection } from './sections/AboutSection'
@@ -21,6 +22,7 @@ type CategoryId =
   | 'agents'
   | 'snippets'
   | 'startup'
+  | 'keys'
   | 'data'
   | 'usage'
   | 'about'
@@ -38,6 +40,7 @@ const CATEGORIES: Category[] = [
   { id: 'agents', labelKey: 'settings.cat.agents', icon: Bot, keywords: ['preset', 'model', 'modelo', 'agent', 'agente', 'claude', 'codex'] },
   { id: 'snippets', labelKey: 'settings.cat.snippets', icon: FileText, keywords: ['snippet', 'prompt', 'plantilla', 'texto', 'text'] },
   { id: 'startup', labelKey: 'settings.cat.startup', icon: Power, keywords: ['startup', 'inicio', 'tray', 'bandeja', 'launch', 'close', 'cerrar', 'shortcut', 'atajo', 'hotkey'] },
+  { id: 'keys', labelKey: 'settings.cat.keys', icon: Keyboard, keywords: ['keys', 'teclas', 'keyboard', 'teclado', 'shortcut', 'atajo', 'keybinding', 'binding', 'palette', 'paleta'] },
   { id: 'data', labelKey: 'settings.cat.data', icon: Database, keywords: ['data', 'datos', 'export', 'exportar', 'import', 'importar', 'backup', 'respaldo'] },
   { id: 'appearance', labelKey: 'settings.cat.appearance', icon: Palette, keywords: ['theme', 'color', 'tema', 'apariencia', 'custom'] },
   { id: 'language', labelKey: 'settings.cat.language', icon: Languages, keywords: ['language', 'idioma', 'english', 'español', 'spanish'] },
@@ -58,6 +61,7 @@ const SECTIONS: Record<CategoryId, ComponentType> = {
   agents: AgentsSection,
   snippets: SnippetsSection,
   startup: StartupSection,
+  keys: KeymapSection,
   data: DataSection,
   usage: UsageSection,
   about: AboutSection,
