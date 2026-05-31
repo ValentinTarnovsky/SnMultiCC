@@ -10,7 +10,6 @@ import type {
   PtyResizeReq,
   PtySpawnReq,
   PtySpawnRes,
-  PtyStateEvt,
   PtyWriteReq,
   SnApi,
 } from '@shared/ipc-contract'
@@ -39,7 +38,6 @@ const api: SnApi = {
     flow: (req: PtyFlowReq) => ipcRenderer.send(CH.PTY_FLOW, req),
     onData: (cb: (e: PtyDataEvt) => void) => sub<PtyDataEvt>(CH.PTY_DATA, cb),
     onExit: (cb: (e: PtyExitEvt) => void) => sub<PtyExitEvt>(CH.PTY_EXIT, cb),
-    onState: (cb: (e: PtyStateEvt) => void) => sub<PtyStateEvt>(CH.PTY_STATE, cb),
   },
   dialog: {
     openDirectory: () => ipcRenderer.invoke(CH.DIALOG_OPEN_DIR) as Promise<string | null>,
@@ -63,8 +61,6 @@ const api: SnApi = {
     setGlobalHotkey: (enabled: boolean, accelerator: string) =>
       ipcRenderer.invoke(CH.SYSTEM_SET_HOTKEY, { enabled, accelerator }) as Promise<boolean>,
     getMetrics: () => ipcRenderer.invoke(CH.SYSTEM_METRICS) as Promise<AppMetrics>,
-    focus: () => ipcRenderer.send(CH.SYSTEM_FOCUS),
-    requestAttention: () => ipcRenderer.send(CH.SYSTEM_ATTENTION),
   },
 }
 

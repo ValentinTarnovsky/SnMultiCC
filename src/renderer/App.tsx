@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { startPersistence } from '@/lib/persist'
-import { usePtyActivity } from '@/lib/usePtyActivity'
 import { applyTheme } from '@/themes'
 import { I18nProvider, useT } from '@/i18n'
 import { Sidebar } from '@/components/sidebar/Sidebar'
@@ -10,7 +9,6 @@ import { WorkspaceHost } from '@/components/layout/WorkspaceHost'
 import { SettingsModal } from '@/components/settings/SettingsModal'
 import { NewWorkspaceWizard } from '@/components/wizard/NewWorkspaceWizard'
 import { TitleBar } from '@/components/titlebar/TitleBar'
-import { Toaster } from '@/components/ui/Toaster'
 import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
 
@@ -58,9 +56,6 @@ function AppBody() {
   const workspaces = useAppStore((s) => s.workspaces)
   const setWizardOpen = useAppStore((s) => s.setWizardOpen)
 
-  // Mirror per-pane activity into the store + fire desktop notifications.
-  usePtyActivity()
-
   const onNew = (): void => setWizardOpen(true)
 
   return (
@@ -85,7 +80,6 @@ function AppBody() {
       </main>
       <SettingsModal />
       <NewWorkspaceWizard />
-      <Toaster />
     </div>
   )
 }

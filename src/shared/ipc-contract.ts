@@ -2,7 +2,7 @@
  * IPC request/response/event payload shapes and the typed bridge surface
  * exposed on `window.snApi`. The SnApi interface grows phase by phase.
  */
-import type { ConfigFile, PaneState } from './types'
+import type { ConfigFile } from './types'
 
 export interface AppInfo {
   version: string
@@ -63,11 +63,6 @@ export interface PtyExitEvt {
   exitCode: number
   signal?: number
 }
-export interface PtyStateEvt {
-  ptyId: string
-  paneId: string
-  state: PaneState
-}
 export interface PtyReattachRes {
   ptyId: string
   /** Recent raw output to replay into the freshly-mounted terminal. */
@@ -99,8 +94,6 @@ export interface SnApi {
     onData(cb: (e: PtyDataEvt) => void): () => void
     /** Returns an unsubscribe function. */
     onExit(cb: (e: PtyExitEvt) => void): () => void
-    /** Live per-pane activity state. Returns an unsubscribe function. */
-    onState(cb: (e: PtyStateEvt) => void): () => void
   }
   dialog: {
     /** Opens a native folder picker; resolves to the chosen path or null. */
@@ -131,9 +124,5 @@ export interface SnApi {
     setGlobalHotkey(enabled: boolean, accelerator: string): Promise<boolean>
     /** Snapshot of live resource usage (poll this for a real-time view). */
     getMetrics(): Promise<AppMetrics>
-    /** Bring the window to the front (e.g. on notification click). */
-    focus(): void
-    /** Flash the taskbar entry to request attention while unfocused. */
-    requestAttention(): void
   }
 }

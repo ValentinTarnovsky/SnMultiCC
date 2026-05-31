@@ -18,7 +18,6 @@ export const CH = {
   // PTY events (main -> renderer)
   PTY_DATA: 'pty:data', // { ptyId, data }
   PTY_EXIT: 'pty:exit', // { ptyId, exitCode, signal }
-  PTY_STATE: 'pty:state', // { ptyId, paneId, state }
 
   // Config (single blob: workspaces + presets + settings + layout)
   CONFIG_LOAD: 'config:load', // invoke -> ConfigFile | null
@@ -43,11 +42,6 @@ export const CH = {
 
   // Live resource metrics
   SYSTEM_METRICS: 'system:metrics', // invoke -> AppMetrics
-
-  // Bring the window to the front (e.g. on notification click)
-  SYSTEM_FOCUS: 'system:focus', // send
-  // Flash the taskbar entry to request attention while unfocused
-  SYSTEM_ATTENTION: 'system:attention', // send
 } as const
 
 export type ChannelName = (typeof CH)[keyof typeof CH]

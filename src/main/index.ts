@@ -105,7 +105,6 @@ function openMainWindow(): void {
   mainWindow = createMainWindow()
   const win = mainWindow
   wireWindowMaximizeEvents(win)
-  win.on('focus', () => win.flashFrame(false))
 
   let forceClose = false
   win.on('close', (event) => {
@@ -173,11 +172,6 @@ app.whenReady().then(() => {
       processes: metrics.length,
       consoles: ptyManager.count,
     }
-  })
-  ipcMain.on(CH.SYSTEM_FOCUS, () => showWindow())
-  ipcMain.on(CH.SYSTEM_ATTENTION, () => {
-    const win = mainWindow
-    if (win && !win.isFocused()) win.flashFrame(true)
   })
   openMainWindow()
 

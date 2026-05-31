@@ -11,15 +11,6 @@ export const CONFIG_VERSION = 3
 
 export type PaneType = 'shell' | 'claude' | 'codex' | 'custom'
 
-/**
- * Live activity of a console, derived in the main process from its output:
- *  - working: output is actively flowing,
- *  - waiting: quiet, and the tail looks like a prompt awaiting input (y/n, etc.),
- *  - idle: quiet, alive, not prompting (a working→idle edge means "task done"),
- *  - exited: the backing process has ended.
- */
-export type PaneState = 'working' | 'waiting' | 'idle' | 'exited'
-
 export interface Pane {
   id: string
   type: PaneType
@@ -151,16 +142,6 @@ export interface Settings {
   globalHotkeyEnabled: boolean
   /** Electron accelerator string, e.g. "Super+Alt+O". */
   globalHotkey: string
-  /** Show the per-console status dot + runtime timer overlay. */
-  showPaneStatus: boolean
-  /** Notify when a (non-shell) console finishes a long task while hidden/unfocused. */
-  notifyOnDone: boolean
-  /** Notify when a console looks like it's waiting for input while hidden/unfocused. */
-  notifyOnWaiting: boolean
-  /** Play a short sound alongside notifications. */
-  notifySound: boolean
-  /** Notification sound volume, 0–100. */
-  notifyVolume: number
   sidebarCollapsed: boolean
 }
 

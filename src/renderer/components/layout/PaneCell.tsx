@@ -7,7 +7,6 @@ import { resolveLaunch } from '@/lib/launch'
 import { iconFor } from '@/lib/icons'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { ContextMenu, type ContextMenuItem } from '@/components/ui/ContextMenu'
-import { PaneStatusBadge } from '@/components/layout/PaneStatusBadge'
 import { TerminalPane } from '@/components/terminal/TerminalPane'
 import { useT } from '@/i18n'
 import { cn } from '@/lib/cn'
@@ -53,7 +52,6 @@ export function PaneCell({
   const cellVisible = workspaceActive && !hidden
 
   const renamePane = useAppStore((s) => s.renamePane)
-  const showStatus = useAppStore((s) => s.settings.showPaneStatus)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   const [renaming, setRenaming] = useState(false)
   const [nameVal, setNameVal] = useState(pane.title)
@@ -133,7 +131,6 @@ export function PaneCell({
             {pane.title}
           </span>
         )}
-        {showStatus && <PaneStatusBadge paneId={pane.id} />}
         <Tooltip label={isMax ? t('pane.restore') : t('pane.maximize')}>
           <button
             draggable={false}
